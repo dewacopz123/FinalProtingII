@@ -1,0 +1,142 @@
+﻿<div class="box-body">
+    <table id="datagrid" class="table table-bordered table-condensed" width="100%">
+        <thead>
+            <tr>
+                <th class="text-center" width="35px"></th>
+                <th class="text-center" width="35px">No</th>
+                <th class="text-center">Name</th>
+                <th class="text-center">Type</th>
+                <th class="text-center">Level</th>
+                <th class="text-center">Approver</th>
+                <th class="text-center">Created By</th>
+                <th class="text-center">Created Date</th>
+                <th class="text-center">Changed By</th>
+                <th class="text-center">Changed Date</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<script type="text/javascript">
+    var initial = true;
+    var initialMode = true;
+
+    $(document).ready(function () {
+
+        $('#datagrid').DataTable({
+            "ordering": false,
+            "oLanguage": { "sEmptyTable": "Data not found." },
+            "dom": "<t><r><'row mt-10'<'col-lg-2'i><'col-lg-6'l><'col-lg-4'p>>",
+            "scrollY": '200px',
+            "scrollCollapse": false,
+            "scrollX": true,
+            "processing": true,
+            "serverSide": true,
+            "autoWidth": false,
+            "ajax": {
+                "url": "@Url.Action("Search", "Workflow")",
+                "type": "POST",
+                "datatype": "json",
+                "data": function (d) {
+                    d.WORKFLOW_NAME = $("#searchWorkflowName").val(),
+                    d.WORKFLOW_TYPE = $("#searchWorkflowType").val(),
+                    d.initialMode = initialMode
+                },
+            },
+            "columnDefs": [
+                {
+                    "targets": [0],
+                    "className": "text-center",
+                    "width": "3%"
+                }, 
+                {
+                    "targets": [1],
+                    "className": "text-center",
+                    "width": "3%"
+                },
+                {
+                    "targets": [3],
+                    "className": "text-right",
+                },
+                {
+                    "targets": [7],
+                    "className": "text-right",
+                },
+                {
+                    "targets": [9],
+                    "className": "text-right",
+                }
+            ],
+            "columns": [
+                {
+                    "render": function (data, type, row) {
+                        return '<input class="grid-checkbox grid-checkbox-body form-check-input" type="checkbox" name="chkRow" data-id="' + row["WORKFLOW_ID"] + '" data-name="' + row["WORKFLOW_NAME"]
+                            + '" data-type="' + row["WORKFLOW_TYPE"] + '" data-type-val="' + row["WORKFLOW_TYPE_VAL"] + '" style="cursor: pointer;">';
+                    }
+                },
+                {
+                    render: function (data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    }
+                },
+                { "data": "WORKFLOW_NAME", "name": "WORKFLOW_NAME" },
+                { "data": "WORKFLOW_TYPE_VAL", "name": "WORKFLOW_TYPE_VAL" },
+                { "data": "WORKFLOW_SEQ", "name": "WORKFLOW_SEQ" },
+                { "data": "APPROVER_NAME", "name": "APPROVER_NAME" },
+                { "data": "CREATED_BY", "name": "CREATED_BY" },
+                {
+                    render: function (data, type, row) {
+                        if (row["CREATED_DT"] != null) {
+                            return moment(row["CREATED_DT"]).format("DD-MM-YYYY");
+                        } else {
+                            return "";
+                        }
+                    }
+                },
+                { "data": "CHANGED_BY", "name": "CHANGED_BY" },
+                {
+                    render: function (data, type, row) {
+                        if (row["CHANGED_DT"] != null) {
+                            return moment(row["CHANGED_DT"]).format("DD-MM-YYYY");
+                        } else {
+                            return "";
+                        }
+                    }
+                },
+            ],
+            "fnDrawCallback": function (oSettings) {
+                $('#datagrid tbody > tr').removeClass('selected');
+                $('.grid-checkbox').not(this).prop('checked', false);
+
+                $("#btn_edit").prop("disabled", ($("[name='chkRow']:checked").length == 1) ? false : true);
+                $("#btn_delete").prop("disabled", ($("[name='chkRow']:checked").length == 1) ? false : true);
+                resizeGrid();
+
+                if (initial) {
+                    toggleColumn();
+                    initial = false;
+                }
+            }
+        });
+
+        $('body').tooltip({ selector: '[data-toggle="tooltip"]' });
+        $("#btn_add").prop("disabled", false);
+        $("#btn_edit").prop("disabled", true);
+        $("#btn_delete").prop("disabled", true);
+
+        $("#datagrid").on("click", "tbody tr", function (e) {
+            if (event.target.type !== 'checkbox') {
+                $(':checkbox', this).trigger('click');
+            }
+        });
+
+        $("#datagrid").on('change', "input[type='checkbox']", function (e) {
+            $('#datagrid tbody > tr').removeClass('selected');
+            $('.grid-checkbox').not(this).prop('checked', false);
+
+            $(this).is(":checked") ? $(this).closest('tr').addClass('selected') : $(this).closest('tr').removeClass('selected');
+            $("#btn_edit").prop("disabled", ($("[name='chkRow']:checked").length == 1) ? false : true);
+            $("#btn_delete").prop("disabled", ($("[name='chkRow']:checked").length == 1) ? false : true);
+        });
+    });
+</script>
