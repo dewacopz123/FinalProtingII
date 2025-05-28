@@ -1,0 +1,32 @@
+﻿@model IEnumerable<FinalProtingII.Models.Karyawan>
+@{
+    ViewBag.Title = "Data Karyawan";
+    ViewBag.ActiveMenu = "DataKaryawan";
+}
+
+<h3>Data Karyawan</h3>
+
+<a asp-action="Create" class="btn btn-success mb-3"><i class="fas fa-plus"></i> Tambah Karyawan</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nama</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var k in Model)
+        {
+            <tr>
+                <td>@k.Id</td>
+                <td>@k.Nama</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@k.Id" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></a>
+                    <a asp-action="Delete" asp-route-id="@k.Id" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

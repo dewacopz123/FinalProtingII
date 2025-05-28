@@ -18,6 +18,11 @@ namespace FinalProtingII.Controllers
             return View();
         }
 
+        public ActionResult Jobdesk()
+        {
+            return View(); 
+        }
+
         public IActionResult Privacy()
         {
             return View();

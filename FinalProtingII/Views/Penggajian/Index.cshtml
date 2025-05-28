@@ -1,0 +1,61 @@
+﻿@model List<FinalProtingII.Models.Penggajian>
+@{
+    ViewData["Title"] = "Penggajian";
+}
+
+<h2>Data Penggajian</h2>
+
+<button class="btn btn-primary mb-2 open-modal" data-url="@Url.Action("Create")">+ Tambah Penggajian</button>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nama Karyawan</th>
+            <th>Tanggal</th>
+            <th>Gaji Pokok</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Id</td>
+                <td>@item.NamaKaryawan</td>
+                <td>@item.Tanggal.ToString("dd/MM/yyyy")</td>
+                <td>@item.GajiPokok.ToString("C0")</td>
+                <td>
+                    <button class="btn btn-warning btn-sm open-modal" data-url="@Url.Action("Edit", new { id = item.Id })">Edit</button>
+                    <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.Id })">Hapus</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Container untuk load modal partial -->
+<div id="modalContainer"></div>
+
+@section Scripts {
+    <script>
+        // letakkan semua script untuk modal di sini
+        $(document).ready(function () {
+            $('.open-modal').click(function (e) {
+                e.preventDefault();
+                var url = $(this).data('url');
+
+                $.get(url, function (data) {
+                    $('#modalContainer').html(data);
+                    $('#modalContainer').find('.modal').modal('show');
+                });
+            });
+
+            $('#modalContainer').on('hidden.bs.modal', '.modal', function () {
+                $('#modalContainer').html('');
+            });
+        });
+    </script>
+}
+
+

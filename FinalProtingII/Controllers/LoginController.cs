@@ -28,5 +28,24 @@ namespace FinalProtingII.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        [HttpPost]
+        public JsonResult Validate(string USERNAME, string PASSWORD)
+        {
+            // Dummy login logic
+            if (USERNAME == "admin" && PASSWORD == "1234")
+            {
+                return Json(new { status = true });
+            }
+            else
+            {
+                return Json(new { status = false, message = "Username or password is incorrect." });
+            }
+        }
+
+        public IActionResult Index()
+        {
+            return View();
+        }
     }
 }
