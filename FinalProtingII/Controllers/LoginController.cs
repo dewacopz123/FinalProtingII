@@ -32,9 +32,14 @@ namespace FinalProtingII.Controllers
         [HttpPost]
         public JsonResult Validate(string USERNAME, string PASSWORD)
         {
-            // Dummy login logic
-            if (USERNAME == "admin" && PASSWORD == "1234")
+            if (USERNAME == "admin" && PASSWORD == "123")
             {
+                HttpContext.Session.SetString("role", "admin");
+                return Json(new { status = true });
+            }
+            else if (USERNAME == "karyawan" && PASSWORD == "321")
+            {
+                HttpContext.Session.SetString("role", "absensi-only");
                 return Json(new { status = true });
             }
             else
@@ -42,6 +47,7 @@ namespace FinalProtingII.Controllers
                 return Json(new { status = false, message = "Username or password is incorrect." });
             }
         }
+
 
         public IActionResult Index()
         {
