@@ -1,13 +1,13 @@
-﻿@model IEnumerable<FinalProtingII.Models.Jobdesk>
+﻿@model List<FinalProtingII.Models.Jobdesk>
+
 @{
-    ViewBag.Title = "Data Jobdesk";
-    ViewBag.ActiveMenu = "Jobdesk";
+    ViewData["Title"] = "Jobdesk";
 }
 
 <div class="container-fluid">
     <div class="card card-primary card-outline">
         <div class="card-header bg-primary text-white">
-            <h4 class="card-title mb-0">Search Jobdesk</h4>
+            <h4 class="card-title mb-0">Search Penggajian</h4>
         </div>
         <div class="card-body" style="padding: 25px 25px 10px 25px">
             <div class="row">
@@ -21,44 +21,59 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="form-group row">
-                        <label class="col-sm-4 col-form-label">Deskripsi Pekerjaan</label>
+                        <label class="col-sm-4 col-form-label">Tanggal</label>
                         <div class="col-sm-8">
-                            <select class="form-control" id="searchJobdesk"></select>
+                            <select class="form-control" id="searchDate"></select>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row">
-                <a asp-action="Create" class="btn btn-success mb-3"><i class="fas fa-plus"></i> Tambah Jobdesk</a>
+                <div class="col-auto">
+                    <button class="btn btn-success mb-2 me-2 open-modal" data-url="@Url.Action("Create")">
+                        + Tambah Jobdesk
+                    </button>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-primary mb-2 open-modal" data-url="@Url.Action("Assign")">
+                        + Tambah Jobdesk ke Karyawan
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <h3>Data Jobdesk</h3>
-    
+    <h2>Data Jobdesk</h2>
+
     <div class="card">
         <div class="card-body">
-            <table class="table table-bordered table-striped">
-                <thead>
+            <table class="table table-bordered">
+                <thead class="bg-info text-white">
                     <tr>
                         <th>ID</th>
-                        <th>Nama Karyawan</th>
-                        <th>Deskripsi Pekerjaan</th>
-                        <th>Tanggal</th>
+                        <th>Nama Jobdesk</th>
+                        <th>Tugas Utama</th>
+                        <th>Karyawan</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var j in Model)
+                    @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@j.Id</td>
-                            <td>@j.Karyawan?.Nama</td>
-                            <td>@j.Deskripsi</td>
-                            <td>@j.TanggalPekerjaan.ToShortDateString()</td>
+                            <td>@item.IdJobdesk</td>
+                            <td>@item.NamaJobdesk</td>
                             <td>
-                                <a asp-action="Edit" asp-route-id="@j.Id" class="btn btn-primary btn-sm"><i class="fas fa-edit"></i></a>
-                                <a asp-action="Delete" asp-route-id="@j.Id" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a>
+                                <ul>
+                                    @foreach (var tugas in item.TugasUtama)
+                                    {
+                                        <li>@tugas</li>
+                                    }
+                                </ul>
+                            </td>
+                            <td>@item.KaryawanNama</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.IdJobdesk })">Hapus</button>
                             </td>
                         </tr>
                     }
@@ -68,4 +83,30 @@
     </div>
 </div>
 
+<div id="jobdesk-modal"></div>
 
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('.open-modal').click(function (e) {
+                e.preventDefault();
+                var url = $(this).data('url');
+                $.get(url, function (data) {
+                    $('#jobdesk-modal').html(data);
+                    $('#jobdesk-modal .modal').modal('show');
+                });
+            });
+
+            // Tutup modal via tombol "Batal" atau "X"
+            $(document).on('click', '.modal .close, .modal [data-dismiss="modal"]', function () {
+                $(this).closest('.modal').modal('hide');
+            });
+
+            // Hapus isi modal ketika selesai
+            $('#dataKaryawan').on('hidden.bs.modal', '.modal', function () {
+                $('#dataKaryawan').empty();
+                location.reload(); // Refresh tabel agar data terbaru muncul
+            });
+        });
+    </script>
+}

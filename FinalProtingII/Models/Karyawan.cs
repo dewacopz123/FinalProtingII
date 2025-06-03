@@ -15,5 +15,6 @@ namespace FinalProtingII.Models
         public string Telepon { get; set; }
         public Role Role { get; set; }
         public int Status { get; set; }
+
     }
 }

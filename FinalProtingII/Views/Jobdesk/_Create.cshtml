@@ -1,0 +1,26 @@
+﻿@model FinalProtingII.Models.Jobdesk
+
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form asp-action="Create" method="post" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Jobdesk</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Nama Jobdesk</label>
+                    <input asp-for="NamaJobdesk" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Tugas Utama (pisahkan dengan koma)</label>
+                    <input name="TugasUtamaString" class="form-control" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" data-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-success">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,20 @@
+﻿@model FinalProtingII.Models.Jobdesk
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form asp-action="DeleteConfirmed" method="post" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hapus Jobdesk</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" name="id" value="@Model.IdJobdesk" />
+                <p>Yakin ingin menghapus jobdesk <strong>@Model.NamaJobdesk</strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-danger">Hapus</button>
+            </div>
+        </form>
+    </div>
+</div>

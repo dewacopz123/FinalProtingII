@@ -1,0 +1,39 @@
+﻿@{
+    var karyawans = ViewBag.Karyawans as List<FinalProtingII.Models.Karyawan>;
+    var jobdesks = ViewBag.Jobdesks as List<FinalProtingII.Models.Jobdesk>;
+}
+
+<div class="modal fade" id="assignModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form asp-action="Assign" method="post" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Berikan Jobdesk ke Karyawan</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Pilih Jobdesk</label>
+                    <select name="jobdeskId" class="form-control">
+                        @foreach (var jd in jobdesks)
+                        {
+                            <option value="@jd.IdJobdesk">@jd.NamaJobdesk</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Pilih Karyawan</label>
+                    <select name="karyawanId" class="form-control">
+                        @foreach (var k in karyawans)
+                        {
+                            <option value="@k.Id">@k.Nama</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
