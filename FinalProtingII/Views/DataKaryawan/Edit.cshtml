@@ -1,0 +1,57 @@
+﻿@model FinalProtingII.Models.Karyawan
+
+@{
+    Layout = null;
+}
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="Id" value="@Model.Id" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Karyawan</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nama</label>
+                        <input name="Nama" class="form-control" value="@Model.Nama" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input name="Email" type="email" class="form-control" value="@Model.Email" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Telepon</label>
+                        <input name="Telepon" type="number" class="form-control" value="@Model.Telepon" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select name="Role" class="form-control">
+                            <option value="Karyawan" selected>Karyawan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="Status" class="form-control">
+                            <option value="1" selected="@(Model.Status == 1 ? "selected" : null)">Aktif</option>
+                            <option value="0" selected="@(Model.Status == 0 ? "selected" : null)">Tidak Aktif</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#editModal').modal('show');
+</script>

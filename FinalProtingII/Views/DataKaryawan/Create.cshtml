@@ -1,0 +1,55 @@
+﻿@model FinalProtingII.Models.Karyawan
+
+@{
+    Layout = null;
+}
+
+<div class="modal fade" id="createModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Karyawan</h5>
+                    <button type="button" class="close" aria-label="Close" data-dismiss="modal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Nama</label>
+                        <input name="Nama" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input name="Email" type="email" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Telepon</label>
+                        <input name="Telepon" type="number" class="form-control" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select name="Role" class="form-control">
+                            <option value="Karyawan">Karyawan</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="Status" class="form-control">
+                            <option value="1">Aktif</option>
+                            <option value="0">Tidak Aktif</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#createModal').modal('show'); // Trigger modal k
