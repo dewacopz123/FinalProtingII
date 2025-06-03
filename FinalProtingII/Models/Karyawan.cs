@@ -12,7 +12,7 @@ namespace FinalProtingII.Models
         public int Id { get; set; }
         public string Nama { get; set; }
         public string Email { get; set; }
-        public int Telepon { get; set; }
+        public string Telepon { get; set; }
         public Role Role { get; set; }
         public int Status { get; set; }
     }

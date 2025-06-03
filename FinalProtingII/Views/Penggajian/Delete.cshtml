@@ -1,20 +1,25 @@
 ﻿@model FinalProtingII.Models.Penggajian
 
-<div class="modal-dialog">
-    <div class="modal-content">
-        <form asp-action="DeleteConfirmed" method="post">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title">Hapus Penggajian</h5>
-                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" name="id" value="@Model.Id" />
-                <p>Apakah Anda yakin ingin menghapus data gaji untuk <strong>@Model.NamaKaryawan</strong>?</p>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" class="btn btn-danger">Hapus</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-            </div>
-        </form>
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form asp-action="DeleteConfirmed" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Hapus Penggajian</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <p>Apakah Anda yakin ingin menghapus data penggajian <strong>@Model.NamaKaryawan</strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
+<script>
+    $('#deleteModal').modal('show');
+</script>

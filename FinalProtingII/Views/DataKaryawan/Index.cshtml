@@ -29,7 +29,7 @@
                 </div>
             </div>
             <div class="row">
-                <button class="btn btn-primary mb-2 open-modal" data-url="@Url.Action("Create")">+ Tambah Karyawan</button>
+                <button class="btn btn-success mb-2 open-modal" data-url="@Url.Action("Create")">+ Tambah Karyawan</button>
             </div>
         </div>
     </div>
@@ -61,7 +61,7 @@
                             <td>@k.Role</td>
                             <td>@(k.Status == 1 ? "Aktif" : "Tidak Aktif")</td>
                             <td>
-                                <button class="btn btn-warning btn-sm open-modal" data-url="@Url.Action("Edit", new { id = k.Id })">Edit</button>
+                                <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Edit", new { id = k.Id })">Edit</button>
                                 <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = k.Id })">Hapus</button>
                             </td>
                         </tr>
@@ -87,8 +87,8 @@
                 });
             });
 
-            // Tutup modal (dengan tombol atau close icon)
-            $(document).on('click', '.modal .close, .modal .btn-secondary[data-dismiss="modal"]', function () {
+            // Tutup modal via tombol "Batal" atau "X"
+            $(document).on('click', '.modal .close, .modal [data-dismiss="modal"]', function () {
                 $(this).closest('.modal').modal('hide');
             });
 

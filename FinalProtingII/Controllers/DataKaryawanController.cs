@@ -9,8 +9,8 @@ namespace FinalProtingII.Controllers
     {
         private static List<Karyawan> _karyawanList = new List<Karyawan>
         {
-            new Karyawan { Id = 1, Nama = "Budi", Email = "budi@mail.com", Telepon = 081111, Role = Role.Karyawan, Status = 1 },
-            new Karyawan { Id = 2, Nama = "Sari", Email = "sari@mail.com", Telepon = 082222, Role = Role.Karyawan, Status = 1 }
+            new Karyawan { Id = 1, Nama = "Budi", Email = "budi@mail.com", Telepon = "081111", Role = Role.Karyawan, Status = 1 },
+            new Karyawan { Id = 2, Nama = "Sari", Email = "sari@mail.com", Telepon = "082222", Role = Role.Karyawan, Status = 1 }
         };
 
         public IActionResult Index()
@@ -27,7 +27,7 @@ namespace FinalProtingII.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Karyawan karyawan)
         {
-            karyawan.Id = _karyawanList.Max(k => k.Id) + 1;
+            karyawan.Id = _karyawanList.Any() ? _karyawanList.Max(k => k.Id) + 1 : 1;
             _karyawanList.Add(karyawan);
             return RedirectToAction("Index");
         }

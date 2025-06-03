@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div class="row">
-                <button class="btn btn-primary mb-2 open-modal" data-url="@Url.Action("Create")">+ Tambah Penggajian</button>
+                <button class="btn btn-success mb-2 open-modal" data-url="@Url.Action("Create")">+ Tambah Penggajian</button>
             </div>
         </div>
     </div>
@@ -56,7 +56,7 @@
                             <td>@item.Tanggal.ToString("dd/MM/yyyy")</td>
                             <td>@item.GajiPokok.ToString("C0")</td>
                             <td>
-                                <button class="btn btn-warning btn-sm open-modal" data-url="@Url.Action("Edit", new { id = item.Id })">Edit</button>
+                                <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Edit", new { id = item.Id })">Edit</button>
                                 <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.Id })">Hapus</button>
                             </td>
                         </tr>
@@ -73,7 +73,6 @@
 
 @section Scripts {
     <script>
-        // letakkan semua script untuk modal di sini
         $(document).ready(function () {
             $('.open-modal').click(function (e) {
                 e.preventDefault();
@@ -85,8 +84,14 @@
                 });
             });
 
-            $('#penggajian').on('hidden.bs.modal', '.modal', function () {
-                $('#penggajian').html('');
+            // Tutup modal (dengan tombol atau close icon)
+            $(document).on('click', '.modal .close, .modal .btn-secondary[data-dismiss="modal"]', function () {
+                $(this).closest('.modal').modal('hide');
+            });
+
+            // Tutup modal via tombol "Batal" atau "X"
+            $(document).on('click', '.modal .close, .modal [data-dismiss="modal"]', function () {
+                $(this).closest('.modal').modal('hide');
             });
         });
     </script>
