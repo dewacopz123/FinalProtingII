@@ -43,6 +43,31 @@ namespace AplikasiAbsensi.Web.Api.Controllers
 
             return Ok(new { message = "Login berhasil!", data = karyawan });
         }
+
+        [HttpPost]
+        public JsonResult Validate(string USERNAME, string PASSWORD)
+        {
+            if (USERNAME == "admin" && PASSWORD == "123")
+            {
+                HttpContext.Session.SetString("role", "admin");
+                return Json(new { status = true });
+            }
+            else if (USERNAME == "karyawan" && PASSWORD == "321")
+            {
+                HttpContext.Session.SetString("role", "absensi-only");
+                return Json(new { status = true });
+            }
+            else
+            {
+                return Json(new { status = false, message = "Username or password is incorrect." });
+            }
+        }
+
+
+        public IActionResult Index()
+        {
+            return View();
+        }
     }
 
 

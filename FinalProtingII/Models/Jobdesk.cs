@@ -1,25 +1,20 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace AplikasiAbsensi.Core.Models
+namespace FinalProtingII.Models
 {
-    public class JobDesk
+    public class Jobdesk
     {
-        public int IdJobdesk { get; set; }
-        public string NamaJobdesk { get; set; }
-        public List<string> TugasUtama { get; set; } = new List<string>();
+        public int Id { get; set; }
 
-        public JobDesk() { }
+        [Required]
+        public int KaryawanId { get; set; }  // Foreign Key
 
-        public JobDesk(int id, string nama, List<string> tugas)
-        {
-            IdJobdesk = id;
-            NamaJobdesk = nama;
-            TugasUtama = tugas ?? new List<string>();
-        }
+        public Karyawan Karyawan { get; set; }  // Navigation Property
 
-        public override string ToString()
-        {
-            return $"{NamaJobdesk} ({string.Join(", ", TugasUtama)})";
-        }
+        [Required]
+        public string Deskripsi { get; set; }
+
+        public DateTime TanggalPekerjaan { get; set; }
     }
 }
