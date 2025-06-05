@@ -1,31 +1,61 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using FinalProtingII.Models; // Ganti dengan namespace model yang sesuai
+using FinalProtingII.Models;
 
 public class AbsensiController : Controller
 {
-    // Simulasi database sementara (nanti bisa diganti dengan DB sesungguhnya)
     private static List<Absensi> absensiList = new List<Absensi>();
+
+    // Method generic untuk cek absensi berdasar status
+    private bool SudahAbsensiHariIni(string namaKaryawan, DateTime tanggal, string status)
+    {
+        return absensiList.Any(a =>
+            a.NamaKaryawan == namaKaryawan &&
+            a.Tanggal.Date == tanggal.Date &&
+            a.Status == status);
+    }
+
+    // Method generic untuk tambah absensi
+    private void TambahAbsensi(string namaKaryawan, string status)
+    {
+        absensiList.Add(new Absensi
+        {
+            Id = absensiList.Count + 1,
+            NamaKaryawan = namaKaryawan,
+            Tanggal = DateTime.Now,
+            Status = status
+        });
+    }
 
     public IActionResult Index()
     {
-        return View(absensiList.OrderByDescending(a => a.Tanggal).ToList());
+        var nama = HttpContext.Session.GetString("Username") ?? "Unknown";
+
+        // Filter absensi sesuai username session
+        var absensiUser = absensiList
+            .Where(a => a.NamaKaryawan == nama)
+            .OrderByDescending(a => a.Tanggal)
+            .ToList();
+
+        return View(absensiUser);
     }
+
 
     [HttpPost]
     public IActionResult MasukKerja()
     {
         var nama = HttpContext.Session.GetString("Username") ?? "Unknown";
+        var today = DateTime.Today;
 
-        absensiList.Add(new Absensi
+        if (SudahAbsensiHariIni(nama, today, "Masuk"))
         {
-            Id = absensiList.Count + 1,
-            NamaKaryawan = nama,
-            Tanggal = DateTime.Now,
-            Status = "Masuk"
-        });
+            TempData["Error"] = "Anda sudah melakukan Masuk Kerja hari ini.";
+            return RedirectToAction("Index");
+        }
 
+        TambahAbsensi(nama, "Masuk");
         return RedirectToAction("Index");
     }
 
@@ -33,15 +63,21 @@ public class AbsensiController : Controller
     public IActionResult SelesaiKerja()
     {
         var nama = HttpContext.Session.GetString("Username") ?? "Unknown";
+        var today = DateTime.Today;
 
-        absensiList.Add(new Absensi
+        if (!SudahAbsensiHariIni(nama, today, "Masuk"))
         {
-            Id = absensiList.Count + 1,
-            NamaKaryawan = nama,
-            Tanggal = DateTime.Now,
-            Status = "Selesai"
-        });
+            TempData["Error"] = "Anda belum melakukan Masuk Kerja hari ini.";
+            return RedirectToAction("Index");
+        }
 
+        if (SudahAbsensiHariIni(nama, today, "Selesai"))
+        {
+            TempData["Error"] = "Anda sudah melakukan Selesai Kerja hari ini.";
+            return RedirectToAction("Index");
+        }
+
+        TambahAbsensi(nama, "Selesai");
         return RedirectToAction("Index");
     }
 }

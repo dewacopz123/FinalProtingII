@@ -31,12 +31,27 @@
                 </li>
             </ul>
             <ul class="navbar-nav ml-auto">
+                @{
+                    var nama = HttpContextAccessor.HttpContext?.Session.GetString("nama");
+                    var role = HttpContextAccessor.HttpContext?.Session.GetString("role");
+                }
+
+                @if (!string.IsNullOrEmpty(nama))
+                {
+                    <li class="nav-item">
+                        <span class="nav-link text-dark font-weight-bold">
+                            <i class="fas fa-user-circle"></i> @nama (@role)
+                        </span>
+                    </li>
+                }
+
                 <li class="nav-item">
                     <a class="nav-link text-danger" href="@Url.Action("Login", "Login")">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
                 </li>
             </ul>
+
         </nav>
 
         <!-- Sidebar -->
@@ -46,9 +61,6 @@
             </div>
             <div class="sidebar">
                 <nav class="mt-2">
-                    @{
-                        var role = HttpContextAccessor.HttpContext?.Session.GetString("role");
-                    }
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview">
                         <li class="nav-item">
                             <a href="@Url.Action("Index", "Absensi")" class="nav-link @(ViewBag.ActiveMenu == "Absensi" ? "active" : "")">
