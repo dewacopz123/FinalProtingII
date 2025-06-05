@@ -4,84 +4,21 @@
     ViewData["Title"] = "Jobdesk";
 }
 
-<div class="container-fluid">
-    <div class="card card-primary card-outline">
-        <div class="card-header bg-primary text-white">
-            <h4 class="card-title mb-0">Search Penggajian</h4>
-        </div>
-        <div class="card-body" style="padding: 25px 25px 10px 25px">
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="form-group row">
-                        <label class="col-sm-4 col-form-label">Nama Karyawan</label>
-                        <div class="col-sm-8">
-                            <select class="form-control" id="searchKaryawanName"></select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="form-group row">
-                        <label class="col-sm-4 col-form-label">Tanggal</label>
-                        <div class="col-sm-8">
-                            <select class="form-control" id="searchDate"></select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-auto">
-                    <button class="btn btn-success mb-2 me-2 open-modal" data-url="@Url.Action("Create")">
-                        + Tambah Jobdesk
-                    </button>
-                </div>
-                <div class="col-auto">
-                    <button class="btn btn-primary mb-2 open-modal" data-url="@Url.Action("Assign")">
-                        + Tambah Jobdesk ke Karyawan
-                    </button>
-                </div>
+<section class="content">
+    <div class="col-xs-12">
+        <div id="divTitle">
+            <div class="content-header">
+                <h3>@ViewData["Title"]</h3>
             </div>
         </div>
-    </div>
-
-    <h2>Data Jobdesk</h2>
-
-    <div class="card">
-        <div class="card-body">
-            <table class="table table-bordered">
-                <thead class="bg-info text-white">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nama Jobdesk</th>
-                        <th>Tugas Utama</th>
-                        <th>Karyawan</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@item.IdJobdesk</td>
-                            <td>@item.NamaJobdesk</td>
-                            <td>
-                                <ul>
-                                    @foreach (var tugas in item.TugasUtama)
-                                    {
-                                        <li>@tugas</li>
-                                    }
-                                </ul>
-                            </td>
-                            <td>@item.KaryawanNama</td>
-                            <td>
-                                <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.IdJobdesk })">Hapus</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div id="divSearch">
+            @Html.Partial("_SearchCriteria")
+        </div>
+        <div id="divGrid">
+            @Html.Partial("_GridView")
         </div>
     </div>
-</div>
+</section>
 
 <div id="jobdesk-modal"></div>
 

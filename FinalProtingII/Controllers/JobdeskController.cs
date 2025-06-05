@@ -26,7 +26,7 @@ namespace FinalProtingII.Controllers
 
         public IActionResult Create()
         {
-            return PartialView("_Create");
+            return PartialView("_FormCreate");
         }
 
         [HttpPost]
@@ -51,7 +51,7 @@ namespace FinalProtingII.Controllers
         {
             ViewBag.Karyawans = karyawans;
             ViewBag.Jobdesks = jobdesks;
-            return PartialView("_Assign");
+            return PartialView("_FormAssign");
         }
 
         [HttpPost]
@@ -71,7 +71,7 @@ namespace FinalProtingII.Controllers
         public IActionResult Delete(int id)
         {
             var jobdesk = jobdesks.FirstOrDefault(j => j.IdJobdesk == id);
-            return PartialView("_Delete", jobdesk);
+            return PartialView("_FormDelete", jobdesk);
         }
 
         [HttpPost]

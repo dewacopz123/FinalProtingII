@@ -1,0 +1,41 @@
+﻿<div class="container-fluid">
+    <div class="card mt-3">
+        <div class="card-body">
+        <h4>Data Karyawan</h4>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table id="tabelKaryawan" class="table table-bordered table-striped">
+                    <thead class="bg-info text-white">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama Jobdesk</th>
+                            <th>Tugas Utama</th>
+                            <th>Karyawan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.IdJobdesk</td>
+                                <td>@item.NamaJobdesk</td>
+                                <td>
+                                    <ul>
+                                        @foreach (var tugas in item.TugasUtama)
+                                        {
+                                            <li>@tugas</li>
+                                        }
+                                    </ul>
+                                </td>
+                                <td>@item.KaryawanNama</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.IdJobdesk })">Hapus</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
