@@ -3,70 +3,21 @@
     ViewData["Title"] = "Penggajian";
 }
 
-<div class="container-fluid">
-    <div class="card card-primary card-outline">
-        <div class="card-header bg-primary text-white">
-            <h4 class="card-title mb-0">Search Penggajian</h4>
-        </div>
-        <div class="card-body" style="padding: 25px 25px 10px 25px">
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="form-group row">
-                        <label class="col-sm-4 col-form-label">Nama Karyawan</label>
-                        <div class="col-sm-8">
-                            <select class="form-control" id="searchKaryawanName"></select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="form-group row">
-                        <label class="col-sm-4 col-form-label">Tanggal</label>
-                        <div class="col-sm-8">
-                            <select class="form-control" id="searchDate"></select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <button class="btn btn-success mb-2 open-modal" data-url="@Url.Action("Create")">+ Tambah Penggajian</button>
+<section class="content">
+    <div class="col-xs-12">
+        <div id="divTitle">
+            <div class="content-header">
+                <h3>@ViewData["Title"]</h3>
             </div>
         </div>
-    </div>
-
-    <h2>Data Penggajian</h2>
-
-    <div class="card">
-        <div class="card-body">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nama Karyawan</th>
-                        <th>Tanggal</th>
-                        <th>Gaji Pokok</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
-                        <tr>
-                            <td>@item.Id</td>
-                            <td>@item.NamaKaryawan</td>
-                            <td>@item.Tanggal.ToString("dd/MM/yyyy")</td>
-                            <td>@item.GajiPokok.ToString("C0")</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Edit", new { id = item.Id })">Edit</button>
-                                <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.Id })">Hapus</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div id="divSearch">
+            @Html.Partial("_SearchCriteria")
+        </div>
+        <div id="divGrid">
+            @Html.Partial("_GridView")
         </div>
     </div>
-</div>
-
+</section>
 
 <!-- Container untuk load modal partial -->
 <div id="penggajian"></div>

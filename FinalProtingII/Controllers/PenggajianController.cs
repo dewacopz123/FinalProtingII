@@ -20,7 +20,7 @@ namespace FinalProtingII.Controllers
 
         public IActionResult Create()
         {
-            return PartialView("Create", new Penggajian());
+            return PartialView("_FormCreate", new Penggajian());
         }
 
         [HttpPost]
@@ -34,7 +34,7 @@ namespace FinalProtingII.Controllers
         public IActionResult Edit(int id)
         {
             var item = data.FirstOrDefault(x => x.Id == id);
-            return PartialView("Edit", item);
+            return PartialView("_FormEdit", item);
         }
 
         [HttpPost]
@@ -53,7 +53,7 @@ namespace FinalProtingII.Controllers
         public IActionResult Delete(int id)
         {
             var item = data.FirstOrDefault(x => x.Id == id);
-            return PartialView("Delete", item);
+            return PartialView("_FormDelete", item);
         }
 
         [HttpPost]

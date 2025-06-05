@@ -1,0 +1,35 @@
+﻿<div class="container-fluid">
+    <div class="card mt-3">
+        <div class="card-body">
+        <h4>Data Penggajian</h4>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table id="tabelKaryawan" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama Karyawan</th>
+                            <th>Tanggal</th>
+                            <th>Gaji Pokok</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.NamaKaryawan</td>
+                                <td>@item.Tanggal.ToString("dd/MM/yyyy")</td>
+                                <td>@item.GajiPokok.ToString("C0")</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Edit", new { id = item.Id })">Edit</button>
+                                    <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.Id })">Hapus</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
