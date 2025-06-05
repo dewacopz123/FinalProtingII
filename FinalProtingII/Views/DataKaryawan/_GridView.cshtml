@@ -1,0 +1,39 @@
+﻿<div class="container-fluid">
+    <div class="card mt-3">
+        <div class="card-body">
+        <h4>Data Karyawan</h4>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table id="tabelKaryawan" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>Telepon</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var k in Model)
+                        {
+                            <tr>
+                                <td>@k.Id</td>
+                                <td>@k.Nama</td>
+                                <td>@k.Email</td>
+                                <td>@k.Telepon</td>
+                                <td>@k.Role</td>
+                                <td>@(k.Status == 1 ? "Aktif" : "Tidak Aktif")</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Edit", new { id = k.Id })">Edit</button>
+                                    <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = k.Id })">Hapus</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

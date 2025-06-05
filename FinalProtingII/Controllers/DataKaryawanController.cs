@@ -20,7 +20,7 @@ namespace FinalProtingII.Controllers
 
         public IActionResult Create()
         {
-            return PartialView("Create");
+            return PartialView("_FormCreate");
         }
 
         [HttpPost]
@@ -39,7 +39,7 @@ namespace FinalProtingII.Controllers
             if (karyawan == null)
                 return NotFound();
 
-            return PartialView("Edit", karyawan);
+            return PartialView("_FormEdit", karyawan);
         }
 
         // POST: Edit
@@ -67,7 +67,7 @@ namespace FinalProtingII.Controllers
             if (karyawan == null)
                 return NotFound();
 
-            return PartialView("Delete", karyawan);
+            return PartialView("_FormDelete", karyawan);
         }
 
         // POST: DeleteConfirmed

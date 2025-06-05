@@ -4,73 +4,25 @@
     ViewBag.ActiveMenu = "DataKaryawan";
 }
 
-<div class="container-fluid">
-    <div class="card card-primary card-outline">
-        <div class="card-header bg-primary text-white">
-            <h4 class="card-title mb-0">Search Penggajian</h4>
-        </div>
-        <div class="card-body" style="padding: 25px 25px 10px 25px">
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="form-group row">
-                        <label class="col-sm-4 col-form-label">Nama Karyawan</label>
-                        <div class="col-sm-8">
-                            <select class="form-control" id="searchKaryawanName"></select>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="form-group row">
-                        <label class="col-sm-4 col-form-label">Tanggal</label>
-                        <div class="col-sm-8">
-                            <select class="form-control" id="searchDate"></select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <button class="btn btn-success mb-2 open-modal" data-url="@Url.Action("Create")">+ Tambah Karyawan</button>
+<section class="content">
+    <div class="col-xs-12">
+        <div id="divTitle">
+            <div class="content-header">
+                <h3>@ViewData["Title"]</h3>
             </div>
         </div>
-    </div>
-
-    <h2>Data Karyawan</h2>
-
-    <div class="card">
-        <div class="card-body">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nama</th>
-                        <th>Email</th>
-                        <th>Telepon</th>
-                        <th>Role</th>
-                        <th>Status</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var k in Model)
-                    {
-                        <tr>
-                            <td>@k.Id</td>
-                            <td>@k.Nama</td>
-                            <td>@k.Email</td>
-                            <td>@k.Telepon</td>
-                            <td>@k.Role</td>
-                            <td>@(k.Status == 1 ? "Aktif" : "Tidak Aktif")</td>
-                            <td>
-                                <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Edit", new { id = k.Id })">Edit</button>
-                                <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = k.Id })">Hapus</button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+        <div id="divSearch">
+            @Html.Partial("_SearchCriteria")
+        </div>
+        <div id="divGrid">
+            @Html.Partial("_GridView")
         </div>
     </div>
-</div>
+</section>
+
+<script>
+    window.onresize = function () { resizeGrid() }
+</script>
 
 <!-- Tempat modal akan dimuat -->
 <div id="dataKaryawan"></div>
@@ -100,4 +52,3 @@
         });
     </script>
 }
-
