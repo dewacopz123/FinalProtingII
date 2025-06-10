@@ -4,7 +4,8 @@ namespace FinalProtingII.Models
 {
     public enum Role
     {
-        Karyawan
+        Karyawan,
+        Admin
     }
 
     public class Karyawan
