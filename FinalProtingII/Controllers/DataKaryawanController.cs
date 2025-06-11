@@ -13,6 +13,37 @@ namespace FinalProtingII.Controllers
             new Karyawan { Id = 2, Nama = "Sari", Email = "sari@mail.com", Telepon = "082222", Role = Role.Karyawan, Status = 1 }
         };
 
+        private delegate IActionResult KaryawanActionDelegate(object data);
+
+        private static readonly Dictionary<string, KaryawanActionDelegate> _actions = new Dictionary<string, KaryawanActionDelegate>
+        {
+            { "_FormCreate", data => {
+                var karyawan = data as Karyawan;
+                karyawan.Id = _karyawanList.Any() ? _karyawanList.Max(k => k.Id) + 1 : 1;
+                _karyawanList.Add(karyawan);
+                return new RedirectToActionResult("Index", "DataKaryawan", null);
+            }},
+            { "_FromEdit", data => {
+                var updated = data as Karyawan;
+                var existing = _karyawanList.FirstOrDefault(k => k.Id == updated.Id);
+                if (existing == null) return new NotFoundResult();
+
+                existing.Nama = updated.Nama;
+                existing.Email = updated.Email;
+                existing.Telepon = updated.Telepon;
+                existing.Role = updated.Role;
+                existing.Status = updated.Status;
+                return new RedirectToActionResult("Index", "DataKaryawan", null);
+            }},
+            { "_FormDelete", data => {
+                int id = (int)data;
+                var karyawan = _karyawanList.FirstOrDefault(k => k.Id == id);
+                if (karyawan != null)
+                    _karyawanList.Remove(karyawan);
+                return new RedirectToActionResult("Index", "DataKaryawan", null);
+            }}
+        };
+
         public IActionResult Index()
         {
             return View(_karyawanList);
@@ -27,12 +58,9 @@ namespace FinalProtingII.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Karyawan karyawan)
         {
-            karyawan.Id = _karyawanList.Any() ? _karyawanList.Max(k => k.Id) + 1 : 1;
-            _karyawanList.Add(karyawan);
-            return RedirectToAction("Index");
+            return _actions["_FormCreate"](karyawan);
         }
 
-        // GET: Edit
         public IActionResult Edit(int id)
         {
             var karyawan = _karyawanList.FirstOrDefault(k => k.Id == id);
@@ -42,25 +70,13 @@ namespace FinalProtingII.Controllers
             return PartialView("_FormEdit", karyawan);
         }
 
-        // POST: Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Karyawan updated)
         {
-            var existing = _karyawanList.FirstOrDefault(k => k.Id == updated.Id);
-            if (existing == null)
-                return NotFound();
-
-            existing.Nama = updated.Nama;
-            existing.Email = updated.Email;
-            existing.Telepon = updated.Telepon;
-            existing.Role = updated.Role;
-            existing.Status = updated.Status;
-
-            return RedirectToAction("Index");
+            return _actions["_FormEdit"](updated);
         }
 
-        // GET: Delete
         public IActionResult Delete(int id)
         {
             var karyawan = _karyawanList.FirstOrDefault(k => k.Id == id);
@@ -70,16 +86,11 @@ namespace FinalProtingII.Controllers
             return PartialView("_FormDelete", karyawan);
         }
 
-        // POST: DeleteConfirmed
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var karyawan = _karyawanList.FirstOrDefault(k => k.Id == id);
-            if (karyawan != null)
-                _karyawanList.Remove(karyawan);
-
-            return RedirectToAction("Index");
+            return _actions["_FormDelete"](id);
         }
     }
 }
