@@ -18,11 +18,11 @@
                                         <!-- Nama Karyawan -->
                                         <div class="form-group d-flex align-items-center mb-0">
                                             <label for="karyawanName" class="mb-0 font-weight-bold col-5">Nama Karyawan</label>
-                                            <select class="form-control" id="karyawanName" name="karyawanName" style="min-width: 200px;">
+                                            <select class="form-control" id="searchKaryawanName" name="karyawanName" style="min-width: 200px;">
                                                 <option value="">-- Choose --</option>
-                                                @foreach (var nama in karyawanList)
+                                                @foreach (var name in (ViewBag.KaryawanNames as List<string>) ?? new List<string>())
                                                 {
-                                                    <option value="@nama">@nama</option>
+                                                    <option value="@name">@name</option>
                                                 }
                                             </select>
                                         </div>

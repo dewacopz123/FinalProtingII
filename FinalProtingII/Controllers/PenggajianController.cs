@@ -8,17 +8,37 @@ namespace FinalProtingII.Controllers
 {
     public class PenggajianController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(string karyawanName)
         {
             var penggajianList = PenggajianHelper.LoadPenggajian();
             var karyawanList = KaryawanHelper.LoadKaryawan();
 
-            // Buat dictionary untuk mapping KaryawanId ke Nama
+            // Buat dictionary untuk ambil nama karyawan berdasarkan IdKaryawan
             var karyawanDict = karyawanList.ToDictionary(k => k.Id, k => k.Nama);
             ViewBag.KaryawanDict = karyawanDict;
 
+            // Filter penggajianList jika karyawanName diisi
+            if (!string.IsNullOrEmpty(karyawanName))
+            {
+                var matchingIds = karyawanList
+                    .Where(k => k.Nama != null && k.Nama.Contains(karyawanName, System.StringComparison.OrdinalIgnoreCase))
+                    .Select(k => k.Id)
+                    .ToHashSet();
+
+                penggajianList = penggajianList
+                    .Where(p => matchingIds.Contains(p.IdKaryawan))
+                    .ToList();
+            }
+
+            ViewBag.KaryawanNames = karyawanList
+                .Select(k => k.Nama)
+                .Where(n => !string.IsNullOrEmpty(n))
+                .Distinct()
+                .ToList();
+
             return View(penggajianList);
         }
+
 
         public IActionResult Create()
         {
@@ -83,5 +103,13 @@ namespace FinalProtingII.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        // Hapus method Search atau redirect ke Index
+        [HttpGet]
+        public IActionResult Search(string karyawanName)
+        {
+            return RedirectToAction("Index", new { karyawanName });
+        }
+
     }
 }

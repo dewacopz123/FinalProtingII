@@ -7,6 +7,20 @@ using FinalProtingII.Models;
 
 public class AbsensiController : Controller
 {
+    public IActionResult Index()
+    {
+        var nama = HttpContext.Session.GetString("Username") ?? "Unknown";
+
+        var absensiList = LoadAbsensi();
+
+        var absensiUser = absensiList
+            .Where(a => a.NamaKaryawan == nama)
+            .OrderByDescending(a => a.Tanggal)
+            .ToList();
+
+        return View(absensiUser);
+    }
+
     // Load absensi dari file setiap akses (atau bisa dioptimalkan pakai cache jika perlu)
     private List<Absensi> LoadAbsensi()
     {
@@ -45,20 +59,6 @@ public class AbsensiController : Controller
         SaveAbsensi(absensiList);
     }
 
-    public IActionResult Index()
-    {
-        var nama = HttpContext.Session.GetString("Username") ?? "Unknown";
-
-        var absensiList = LoadAbsensi();
-
-        var absensiUser = absensiList
-            .Where(a => a.NamaKaryawan == nama)
-            .OrderByDescending(a => a.Tanggal)
-            .ToList();
-
-        return View(absensiUser);
-    }
-
     [HttpPost]
     public IActionResult MasukKerja()
     {
@@ -95,5 +95,18 @@ public class AbsensiController : Controller
 
         TambahAbsensi(nama, "Selesai");
         return RedirectToAction("Index");
+    }
+
+    [HttpGet]
+    public IActionResult Search(string karyawanName)
+    {
+        var karyawanList = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
+
+        ViewBag.KaryawanNames = KaryawanHelper.LoadKaryawan()
+            .Select(k => k.Nama)
+            .Distinct()
+            .ToList();
+
+        return View("Index", karyawanList);
     }
 }
