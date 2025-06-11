@@ -12,26 +12,12 @@ namespace FinalProtingII.Controllers
             var assignments = JobdeskAssignmentHelper.LoadAssignments();
             var allKaryawans = KaryawanHelper.LoadKaryawan();
 
-            Dictionary<int, List<string>> jobdeskToKaryawans = new();
-
-            foreach (var jd in jobdesks)
-            {
-                var assignedIds = assignments
-                    .Where(a => a.JobdeskId == jd.IdJobdesk)
-                    .Select(a => a.KaryawanId)
-                    .ToList();
-
-                var names = allKaryawans
-                    .Where(k => assignedIds.Contains(k.Id))
-                    .Select(k => k.Nama)
-                    .ToList();
-
-                jobdeskToKaryawans[jd.IdJobdesk] = names;
-            }
+            // Mapping jobdesk ke karyawan
+            var jobdeskToKaryawans = KaryawanJobdeskService.GetKaryawansForJobdesks(jobdesks.Select(j => j.IdJobdesk).ToList());
 
             ViewBag.JobdeskToKaryawans = jobdeskToKaryawans;
 
-            // ✅ Tambahkan ViewBag untuk dropdown
+            // Dropdown data
             ViewBag.JobdeskNames = jobdesks
                 .Select(j => j.NamaJobdesk)
                 .Where(n => !string.IsNullOrEmpty(n))
@@ -94,7 +80,7 @@ namespace FinalProtingII.Controllers
         [HttpPost]
         public IActionResult Edit(int jobdeskId, int karyawanId)
         {
-            // Hapus semua assignment jobdesk ini, lalu tambahkan baru
+            // Hapus semua assignment jobdesk ini, lalu tambah assignment baru
             JobdeskAssignmentHelper.HapusAssignmentsByJobdesk(jobdeskId);
 
             JobdeskAssignmentHelper.TambahAssignment(new JobdeskAssignment
@@ -122,37 +108,40 @@ namespace FinalProtingII.Controllers
 
         public IActionResult Search(string jobdeskName, string karyawanName)
         {
-            var jobdesks = JobdeskHelper.LoadJobdesk();
-            var assignments = JobdeskAssignmentHelper.LoadAssignments();
-            var allKaryawans = KaryawanHelper.LoadKaryawan();
+            // Cari jobdesk berdasarkan filter jobdeskName dan karyawanName
+            var filteredJobdesks = KaryawanJobdeskService.SearchJobdesk(nama: jobdeskName);
 
-            if (!string.IsNullOrWhiteSpace(jobdeskName))
-            {
-                jobdesks = jobdesks
-                    .Where(j => !string.IsNullOrEmpty(j.NamaJobdesk) && j.NamaJobdesk.Contains(jobdeskName, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-            }
+            List<int> jobdeskIds = filteredJobdesks.Select(j => j.IdJobdesk).ToList();
 
             if (!string.IsNullOrWhiteSpace(karyawanName))
             {
-                var matchingKaryawanIds = allKaryawans
-                    .Where(k => k.Nama.Contains(karyawanName, StringComparison.OrdinalIgnoreCase))
-                    .Select(k => k.Id)
-                    .ToList();
+                // Cari karyawan yang sesuai filter karyawanName
+                var filteredKaryawans = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
+                var karyawanIds = filteredKaryawans.Select(k => k.Id).ToList();
 
-                var matchingJobdeskIds = assignments
-                    .Where(a => matchingKaryawanIds.Contains(a.KaryawanId))
+                // Cari jobdesk yang terkait karyawan tsb
+                var assignments = JobdeskAssignmentHelper.LoadAssignments();
+                var jobdeskIdsByKaryawan = assignments
+                    .Where(a => karyawanIds.Contains(a.KaryawanId))
                     .Select(a => a.JobdeskId)
                     .Distinct()
                     .ToList();
 
-                jobdesks = jobdesks
-                    .Where(j => matchingJobdeskIds.Contains(j.IdJobdesk))
+                // Intersect jobdesk hasil filter jobdeskName dan karyawanName
+                jobdeskIds = jobdeskIds.Intersect(jobdeskIdsByKaryawan).ToList();
+
+                filteredJobdesks = filteredJobdesks
+                    .Where(j => jobdeskIds.Contains(j.IdJobdesk))
                     .ToList();
             }
 
-            // Untuk dropdown
-            ViewBag.JobdeskNames = JobdeskHelper.LoadJobdesk()
+            // Mapping jobdesk ke karyawan untuk jobdesk yang difilter
+            var jobdeskToKaryawans = KaryawanJobdeskService.GetKaryawansForJobdesks(jobdeskIds);
+
+            var allKaryawans = KaryawanHelper.LoadKaryawan();
+            var allJobdesks = JobdeskHelper.LoadJobdesk();
+
+            ViewBag.JobdeskNames = allJobdesks
                 .Select(j => j.NamaJobdesk)
                 .Where(n => !string.IsNullOrEmpty(n))
                 .Distinct()
@@ -164,27 +153,9 @@ namespace FinalProtingII.Controllers
                 .Distinct()
                 .ToList();
 
-            // Data mapping karyawan per jobdesk
-            Dictionary<int, List<string>> jobdeskToKaryawans = new();
-
-            foreach (var jd in jobdesks)
-            {
-                var assignedIds = assignments
-                    .Where(a => a.JobdeskId == jd.IdJobdesk)
-                    .Select(a => a.KaryawanId)
-                    .ToList();
-
-                var names = allKaryawans
-                    .Where(k => assignedIds.Contains(k.Id))
-                    .Select(k => k.Nama)
-                    .ToList();
-
-                jobdeskToKaryawans[jd.IdJobdesk] = names;
-            }
-
             ViewBag.JobdeskToKaryawans = jobdeskToKaryawans;
 
-            return View("Index", jobdesks);
+            return View("Index", filteredJobdesks);
         }
     }
 }

@@ -7,10 +7,17 @@ namespace FinalProtingII.Controllers
 {
     public class DataKaryawanController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(string karyawanName)
         {
-            var list = KaryawanHelper.LoadKaryawan();
-            return View(list);
+            // Pakai service pencarian reusable
+            var allData = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
+
+            ViewBag.KaryawanNames = KaryawanHelper.LoadKaryawan()
+                .Select(k => k.Nama)
+                .Distinct()
+                .ToList();
+
+            return View(allData);
         }
 
         public IActionResult Create()
@@ -78,6 +85,19 @@ namespace FinalProtingII.Controllers
                 KaryawanHelper.SimpanKaryawan(list);
             }
             return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult Search(string karyawanName)
+        {
+            var karyawanList = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
+
+            ViewBag.KaryawanNames = KaryawanHelper.LoadKaryawan()
+                .Select(k => k.Nama)
+                .Distinct()
+                .ToList();
+
+            return View("Index", karyawanList);
         }
     }
 }
