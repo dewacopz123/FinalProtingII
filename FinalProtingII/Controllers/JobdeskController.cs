@@ -53,26 +53,29 @@ namespace FinalProtingII.Controllers
         public IActionResult Assign(int jobdeskId, int karyawanId)
         {
             var jobdesks = JobdeskHelper.LoadJobdesk();
-            var originalJobdesk = jobdesks.FirstOrDefault(j => j.IdJobdesk == jobdeskId);
+            var jobdesk = jobdesks.FirstOrDefault(j => j.IdJobdesk == jobdeskId);
             var karyawan = karyawans.FirstOrDefault(k => k.Id == karyawanId);
 
-            if (originalJobdesk != null && karyawan != null)
+            if (jobdesk != null && karyawan != null)
             {
-                // Clone jobdesk
-                var newJobdesk = new Jobdesk
-                {
-                    IdJobdesk = jobdesks.Count > 0 ? jobdesks.Max(j => j.IdJobdesk) + 1 : 1,
-                    NamaJobdesk = originalJobdesk.NamaJobdesk,
-                    TugasUtama = new List<string>(originalJobdesk.TugasUtama),
-                    KaryawanNama = karyawan.Nama
-                };
+                // Split existing names, add new if not present, and join back
+                var names = (jobdesk.KaryawanNama ?? "")
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(n => n.Trim())
+                    .ToList();
 
-                jobdesks.Add(newJobdesk);
-                JobdeskHelper.SimpanJobdesk(jobdesks);
+                if (!names.Contains(karyawan.Nama))
+                {
+                    names.Add(karyawan.Nama);
+                    jobdesk.KaryawanNama = string.Join(", ", names);
+                    JobdeskHelper.SimpanJobdesk(jobdesks);
+                }
             }
 
             return RedirectToAction("Index");
         }
+
+
 
         [HttpPost]
         public IActionResult Edit(int jobdeskId, int karyawanId)

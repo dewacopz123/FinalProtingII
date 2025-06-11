@@ -9,7 +9,7 @@
                             <th>ID</th>
                             <th>Nama Jobdesk</th>
                             <th>Tugas Utama</th>
-                            <th>Karyawan</th>
+                            <th>Nama Karyawan</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -30,6 +30,7 @@
                                 <td>@item.KaryawanNama</td>
                                 <td>
                                     <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.IdJobdesk })">Hapus</button>
+                                    <button class="btn btn-warning btn-sm open-modal" data-url="@Url.Action("Update", new { id = item.IdJobdesk })">Ubah</button>
                                 </td>
                             </tr>
                         }

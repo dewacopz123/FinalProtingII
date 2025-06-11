@@ -1,0 +1,12 @@
+[
+  {
+    "IdJobdesk": 1,
+    "NamaJobdesk": "jobdesk1",
+    "TugasUtama": [
+      "1",
+      "2",
+      "3"
+    ],
+    "KaryawanNama": "Sari, Budi"
+  }
+]
