@@ -1,0 +1,14 @@
+[
+  {
+    "Id": 1,
+    "NamaKaryawan": "admin",
+    "Tanggal": "2025-06-11T16:08:44.5757966+07:00",
+    "Status": "Masuk"
+  },
+  {
+    "Id": 2,
+    "NamaKaryawan": "admin",
+    "Tanggal": "2025-06-11T16:08:46.9209808+07:00",
+    "Status": "Selesai"
+  }
+]

@@ -2,38 +2,55 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using FinalProtingII.Helpers;
 using FinalProtingII.Models;
 
 public class AbsensiController : Controller
 {
-    private static List<Absensi> absensiList = new List<Absensi>();
+    // Load absensi dari file setiap akses (atau bisa dioptimalkan pakai cache jika perlu)
+    private List<Absensi> LoadAbsensi()
+    {
+        // AbsensiHelper perlu diupdate untuk support Absensi (bukan Karyawan)
+        return AbsensiHelper.LoadAbsensi();
+    }
 
-    // Method generic untuk cek absensi berdasar status
+    // Simpan absensi ke file
+    private void SaveAbsensi(List<Absensi> list)
+    {
+        AbsensiHelper.SaveAbsensi(list);
+    }
+
     private bool SudahAbsensiHariIni(string namaKaryawan, DateTime tanggal, string status)
     {
+        var absensiList = LoadAbsensi();
+
         return absensiList.Any(a =>
             a.NamaKaryawan == namaKaryawan &&
             a.Tanggal.Date == tanggal.Date &&
             a.Status == status);
     }
 
-    // Method generic untuk tambah absensi
     private void TambahAbsensi(string namaKaryawan, string status)
     {
+        var absensiList = LoadAbsensi();
+
         absensiList.Add(new Absensi
         {
-            Id = absensiList.Count + 1,
+            Id = absensiList.Any() ? absensiList.Max(a => a.Id) + 1 : 1,
             NamaKaryawan = namaKaryawan,
             Tanggal = DateTime.Now,
             Status = status
         });
+
+        SaveAbsensi(absensiList);
     }
 
     public IActionResult Index()
     {
         var nama = HttpContext.Session.GetString("Username") ?? "Unknown";
 
-        // Filter absensi sesuai username session
+        var absensiList = LoadAbsensi();
+
         var absensiUser = absensiList
             .Where(a => a.NamaKaryawan == nama)
             .OrderByDescending(a => a.Tanggal)
@@ -41,7 +58,6 @@ public class AbsensiController : Controller
 
         return View(absensiUser);
     }
-
 
     [HttpPost]
     public IActionResult MasukKerja()
