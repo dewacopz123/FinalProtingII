@@ -15,8 +15,23 @@ namespace FinalProtingII.Controllers
         public IActionResult Index()
         {
             var jobdesks = JobdeskHelper.LoadJobdesk();
+
+            ViewBag.JobdeskNames = jobdesks
+                .Select(j => j.NamaJobdesk)
+                .Where(n => !string.IsNullOrEmpty(n))
+                .Distinct()
+                .ToList();
+
+            ViewBag.KaryawanNames = jobdesks
+                .SelectMany(j => (j.KaryawanNama ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+                .Select(n => n.Trim())
+                .Where(n => !string.IsNullOrEmpty(n))
+                .Distinct()
+                .ToList();
+
             return View(jobdesks);
         }
+
 
         public IActionResult Create()
         {
@@ -106,5 +121,41 @@ namespace FinalProtingII.Controllers
             JobdeskHelper.HapusJobdesk(id);
             return RedirectToAction("Index");
         }
+
+        public IActionResult Search(string jobdeskName, string karyawanName)
+        {
+            var jobdesks = JobdeskHelper.LoadJobdesk();
+
+            if (!string.IsNullOrWhiteSpace(jobdeskName))
+            {
+                jobdesks = jobdesks
+                    .Where(j => !string.IsNullOrEmpty(j.NamaJobdesk) && j.NamaJobdesk.Contains(jobdeskName, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            if (!string.IsNullOrWhiteSpace(karyawanName))
+            {
+                jobdesks = jobdesks
+                    .Where(j => !string.IsNullOrEmpty(j.KaryawanNama) && j.KaryawanNama.Contains(karyawanName, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            // ⬇️ WAJIB diisi ulang agar dropdown tidak hilang
+            ViewBag.JobdeskNames = JobdeskHelper.LoadJobdesk()
+                .Select(j => j.NamaJobdesk)
+                .Where(n => !string.IsNullOrEmpty(n))
+                .Distinct()
+                .ToList();
+
+            ViewBag.KaryawanNames = JobdeskHelper.LoadJobdesk()
+                .SelectMany(j => (j.KaryawanNama ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
+                .Select(n => n.Trim())
+                .Where(n => !string.IsNullOrEmpty(n))
+                .Distinct()
+                .ToList();
+
+            return View("Index", jobdesks);
+        }
+
     }
 }

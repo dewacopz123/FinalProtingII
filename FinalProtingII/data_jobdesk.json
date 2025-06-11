@@ -8,5 +8,15 @@
       "3"
     ],
     "KaryawanNama": "Sari, Budi"
+  },
+  {
+    "IdJobdesk": 2,
+    "NamaJobdesk": "jobdesk2",
+    "TugasUtama": [
+      "1",
+      "2",
+      "3"
+    ],
+    "KaryawanNama": "Sari"
   }
 ]
