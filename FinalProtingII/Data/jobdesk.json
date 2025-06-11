@@ -12,18 +12,8 @@
     "IdJobdesk": 2,
     "NamaJobdesk": "jobdesk2",
     "TugasUtama": [
-      "1",
-      "2",
-      "3"
-    ]
-  },
-  {
-    "IdJobdesk": 3,
-    "NamaJobdesk": "jobdesk3",
-    "TugasUtama": [
-      "3",
-      "2",
-      "1"
+      "tes",
+      "tes2"
     ]
   }
 ]

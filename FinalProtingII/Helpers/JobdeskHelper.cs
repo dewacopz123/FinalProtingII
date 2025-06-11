@@ -5,7 +5,7 @@ namespace FinalProtingII.Helpers
 {
     public static class JobdeskHelper
     {
-        private static readonly string fileJobdeskPath = "data_jobdesk.json";
+        private static readonly string fileJobdeskPath = "Data/jobdesk.json";
 
         public static List<Jobdesk> LoadJobdesk()
         {

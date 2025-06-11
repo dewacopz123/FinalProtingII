@@ -1,5 +1,8 @@
 ﻿@model List<FinalProtingII.Models.Jobdesk>
 @using System.Linq
+@{
+    var jobdeskToKaryawans = ViewBag.JobdeskToKaryawans as Dictionary<int, List<string>>;
+}
 
 <div class="container-fluid">
     <div class="card mt-3">
@@ -39,10 +42,24 @@
                                             }
                                         </ul>
                                     </td>
-                                    <td>@item.KaryawanNama</td>
                                     <td>
+                                        @if (jobdeskToKaryawans != null && jobdeskToKaryawans.ContainsKey(item.IdJobdesk))
+                                        {
+                                            <ul>
+                                                @foreach (var nama in jobdeskToKaryawans[item.IdJobdesk])
+                                                {
+                                                    <li>@nama</li>
+                                                }
+                                            </ul>
+                                        }
+                                        else
+                                        {
+                                            <span>-</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Update", new { id = item.IdJobdesk })">Edit</button>
                                         <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.IdJobdesk })">Hapus</button>
-                                        <button class="btn btn-warning btn-sm open-modal" data-url="@Url.Action("Update", new { id = item.IdJobdesk })">Ubah</button>
                                     </td>
                                 </tr>
                             }

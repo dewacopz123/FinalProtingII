@@ -17,5 +17,6 @@ namespace FinalProtingII.Models
         public Role Role { get; set; }
         public int Status { get; set; }
 
+        public List<Jobdesk> Jobdesks { get; set; } = new List<Jobdesk>();
     }
 }

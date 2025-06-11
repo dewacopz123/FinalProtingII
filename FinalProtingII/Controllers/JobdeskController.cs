@@ -6,25 +6,40 @@ namespace FinalProtingII.Controllers
 {
     public class JobdeskController : Controller
     {
-        private static List<Karyawan> karyawans = new List<Karyawan>
-        {
-            new Karyawan { Id = 1, Nama = "Budi" },
-            new Karyawan { Id = 2, Nama = "Sari" }
-        };
-
         public IActionResult Index()
         {
             var jobdesks = JobdeskHelper.LoadJobdesk();
+            var assignments = JobdeskAssignmentHelper.LoadAssignments();
+            var allKaryawans = KaryawanHelper.LoadKaryawan();
 
+            Dictionary<int, List<string>> jobdeskToKaryawans = new();
+
+            foreach (var jd in jobdesks)
+            {
+                var assignedIds = assignments
+                    .Where(a => a.JobdeskId == jd.IdJobdesk)
+                    .Select(a => a.KaryawanId)
+                    .ToList();
+
+                var names = allKaryawans
+                    .Where(k => assignedIds.Contains(k.Id))
+                    .Select(k => k.Nama)
+                    .ToList();
+
+                jobdeskToKaryawans[jd.IdJobdesk] = names;
+            }
+
+            ViewBag.JobdeskToKaryawans = jobdeskToKaryawans;
+
+            // ✅ Tambahkan ViewBag untuk dropdown
             ViewBag.JobdeskNames = jobdesks
                 .Select(j => j.NamaJobdesk)
                 .Where(n => !string.IsNullOrEmpty(n))
                 .Distinct()
                 .ToList();
 
-            ViewBag.KaryawanNames = jobdesks
-                .SelectMany(j => (j.KaryawanNama ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
-                .Select(n => n.Trim())
+            ViewBag.KaryawanNames = allKaryawans
+                .Select(k => k.Nama)
                 .Where(n => !string.IsNullOrEmpty(n))
                 .Distinct()
                 .ToList();
@@ -59,7 +74,7 @@ namespace FinalProtingII.Controllers
 
         public IActionResult Assign()
         {
-            ViewBag.Karyawans = karyawans;
+            ViewBag.Karyawans = KaryawanHelper.LoadKaryawan();
             ViewBag.Jobdesks = JobdeskHelper.LoadJobdesk();
             return PartialView("_FormAssign");
         }
@@ -67,47 +82,29 @@ namespace FinalProtingII.Controllers
         [HttpPost]
         public IActionResult Assign(int jobdeskId, int karyawanId)
         {
-            var jobdesks = JobdeskHelper.LoadJobdesk();
-            var jobdesk = jobdesks.FirstOrDefault(j => j.IdJobdesk == jobdeskId);
-            var karyawan = karyawans.FirstOrDefault(k => k.Id == karyawanId);
-
-            if (jobdesk != null && karyawan != null)
+            JobdeskAssignmentHelper.TambahAssignment(new JobdeskAssignment
             {
-                // Split existing names, add new if not present, and join back
-                var names = (jobdesk.KaryawanNama ?? "")
-                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(n => n.Trim())
-                    .ToList();
-
-                if (!names.Contains(karyawan.Nama))
-                {
-                    names.Add(karyawan.Nama);
-                    jobdesk.KaryawanNama = string.Join(", ", names);
-                    JobdeskHelper.SimpanJobdesk(jobdesks);
-                }
-            }
+                JobdeskId = jobdeskId,
+                KaryawanId = karyawanId
+            });
 
             return RedirectToAction("Index");
         }
-
-
 
         [HttpPost]
         public IActionResult Edit(int jobdeskId, int karyawanId)
         {
-            var jobdesks = JobdeskHelper.LoadJobdesk();
-            var jobdesk = jobdesks.FirstOrDefault(j => j.IdJobdesk == jobdeskId);
-            var karyawan = karyawans.FirstOrDefault(k => k.Id == karyawanId);
+            // Hapus semua assignment jobdesk ini, lalu tambahkan baru
+            JobdeskAssignmentHelper.HapusAssignmentsByJobdesk(jobdeskId);
 
-            if (jobdesk != null && karyawan != null)
+            JobdeskAssignmentHelper.TambahAssignment(new JobdeskAssignment
             {
-                jobdesk.KaryawanNama = karyawan.Nama;
-                JobdeskHelper.SimpanJobdesk(jobdesks);
-            }
+                JobdeskId = jobdeskId,
+                KaryawanId = karyawanId
+            });
 
             return RedirectToAction("Index");
         }
-
 
         public IActionResult Delete(int id)
         {
@@ -118,6 +115,7 @@ namespace FinalProtingII.Controllers
         [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
+            JobdeskAssignmentHelper.HapusAssignmentsByJobdesk(id);
             JobdeskHelper.HapusJobdesk(id);
             return RedirectToAction("Index");
         }
@@ -125,6 +123,8 @@ namespace FinalProtingII.Controllers
         public IActionResult Search(string jobdeskName, string karyawanName)
         {
             var jobdesks = JobdeskHelper.LoadJobdesk();
+            var assignments = JobdeskAssignmentHelper.LoadAssignments();
+            var allKaryawans = KaryawanHelper.LoadKaryawan();
 
             if (!string.IsNullOrWhiteSpace(jobdeskName))
             {
@@ -135,27 +135,56 @@ namespace FinalProtingII.Controllers
 
             if (!string.IsNullOrWhiteSpace(karyawanName))
             {
+                var matchingKaryawanIds = allKaryawans
+                    .Where(k => k.Nama.Contains(karyawanName, StringComparison.OrdinalIgnoreCase))
+                    .Select(k => k.Id)
+                    .ToList();
+
+                var matchingJobdeskIds = assignments
+                    .Where(a => matchingKaryawanIds.Contains(a.KaryawanId))
+                    .Select(a => a.JobdeskId)
+                    .Distinct()
+                    .ToList();
+
                 jobdesks = jobdesks
-                    .Where(j => !string.IsNullOrEmpty(j.KaryawanNama) && j.KaryawanNama.Contains(karyawanName, StringComparison.OrdinalIgnoreCase))
+                    .Where(j => matchingJobdeskIds.Contains(j.IdJobdesk))
                     .ToList();
             }
 
-            // ⬇️ WAJIB diisi ulang agar dropdown tidak hilang
+            // Untuk dropdown
             ViewBag.JobdeskNames = JobdeskHelper.LoadJobdesk()
                 .Select(j => j.NamaJobdesk)
                 .Where(n => !string.IsNullOrEmpty(n))
                 .Distinct()
                 .ToList();
 
-            ViewBag.KaryawanNames = JobdeskHelper.LoadJobdesk()
-                .SelectMany(j => (j.KaryawanNama ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries))
-                .Select(n => n.Trim())
+            ViewBag.KaryawanNames = allKaryawans
+                .Select(k => k.Nama)
                 .Where(n => !string.IsNullOrEmpty(n))
                 .Distinct()
                 .ToList();
 
+            // Data mapping karyawan per jobdesk
+            Dictionary<int, List<string>> jobdeskToKaryawans = new();
+
+            foreach (var jd in jobdesks)
+            {
+                var assignedIds = assignments
+                    .Where(a => a.JobdeskId == jd.IdJobdesk)
+                    .Select(a => a.KaryawanId)
+                    .ToList();
+
+                var names = allKaryawans
+                    .Where(k => assignedIds.Contains(k.Id))
+                    .Select(k => k.Nama)
+                    .ToList();
+
+                jobdeskToKaryawans[jd.IdJobdesk] = names;
+            }
+
+            ViewBag.JobdeskToKaryawans = jobdeskToKaryawans;
+
             return View("Index", jobdesks);
         }
-
     }
 }

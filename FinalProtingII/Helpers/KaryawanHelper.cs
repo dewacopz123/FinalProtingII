@@ -1,56 +1,47 @@
-﻿using System.Text.Json;
-using FinalProtingII.Models;
+﻿using FinalProtingII.Models;
+using System.Text.Json;
 
-namespace FinalProtingII.Helpers
+public static class KaryawanHelper
 {
-    public static class KaryawanHelper
+    private static readonly string FilePath = "Data/karyawan.json"; // ganti ke lokasi yang simple
+
+    public static List<Karyawan> LoadKaryawan()
     {
-        private static readonly string filePath = "data_karyawan.json";
-        private static readonly string fileJobdeskPath = "data_jobdesk.json";
+        if (!File.Exists(FilePath))
+            return new List<Karyawan>();
 
-        /*public static List<Karyawan> LoadKaryawan()
+        var json = File.ReadAllText(FilePath);
+        return JsonSerializer.Deserialize<List<Karyawan>>(json) ?? new List<Karyawan>();
+    }
+
+    public static void SimpanKaryawan(List<Karyawan> list)
+    {
+        var json = JsonSerializer.Serialize(list, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(FilePath, json);
+    }
+
+    public static Karyawan? GetById(int id)
+    {
+        return LoadKaryawan().FirstOrDefault(k => k.Id == id);
+    }
+
+    public static void TambahKaryawan(Karyawan karyawan)
+    {
+        var data = LoadKaryawan();
+        data.Add(karyawan);
+        SimpanKaryawan(data);
+    }
+
+    public static bool HapusKaryawan(int id)
+    {
+        var data = LoadKaryawan();
+        var item = data.FirstOrDefault(k => k.Id == id);
+        if (item != null)
         {
-            if (!File.Exists(filePath)) return new List<Karyawan>();
-
-            var json = File.ReadAllText(filePath);
-            var karyawanList = JsonSerializer.Deserialize<List<Karyawan>>(json) ?? new List<Karyawan>();
-
-            // Load jobdesk list
-            List<Jobdesk> jobdeskList = JobdeskHelper.LoadJobdesk();
-
-            // Pasangkan Jobdesk ke Karyawan berdasarkan JobdeskId
-            foreach (var karyawan in karyawanList)
-            {
-                karyawan.Jobdesk = jobdeskList.FirstOrDefault(j => j.IdJobdesk == karyawan.JobdeskId);
-            }
-
-            return karyawanList;
-        }*/
-
-        public static void SimpanData<T>(List<T> daftarKaryawan)
-        {
-            var json = JsonSerializer.Serialize(daftarKaryawan, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(filePath, json);
+            data.Remove(item);
+            SimpanKaryawan(data);
+            return true;
         }
-
-        /*public static void TambahKaryawan(Karyawan karyawan)
-        {
-            var data = LoadKaryawan();
-            data.Add(karyawan);
-            SimpanData(data);
-        }
-
-        public static bool HapusKaryawan(int idKaryawan)
-        {
-            var data = LoadKaryawan();
-            var karyawan = data.FirstOrDefault(k => k.Id_Karyawan == idKaryawan);
-            if (karyawan != null)
-            {
-                data.Remove(karyawan);
-                SimpanData(data);
-                return true;
-            }
-            return false;
-        }*/
+        return false;
     }
 }
