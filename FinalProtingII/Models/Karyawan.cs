@@ -18,5 +18,7 @@ namespace FinalProtingII.Models
         public int Status { get; set; }
 
         public List<Jobdesk> Jobdesks { get; set; } = new List<Jobdesk>();
+        public List<Penggajian> Penggajians { get; set; } = new List<Penggajian>();
+
     }
 }

@@ -1,28 +1,61 @@
-﻿using System.Collections.Generic;
+﻿using FinalProtingII.Models;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
-using FinalProtingII.Models;
 
 namespace FinalProtingII.Helpers
 {
-    public static class PenggajihanHelper
+    public static class PenggajianHelper
     {
-        private static readonly string filePath = "data_karyawan.json";
+        private static readonly string filePath = "Data/penggajian.json";
 
-        public static List<Karyawan> LoadData()
+        public static List<Penggajian> LoadPenggajian()
         {
             if (!File.Exists(filePath))
-                return new List<Karyawan>();
+                return new List<Penggajian>();
 
-            string json = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<List<Karyawan>>(json) ?? new List<Karyawan>();
+            var json = File.ReadAllText(filePath);
+            return JsonSerializer.Deserialize<List<Penggajian>>(json) ?? new List<Penggajian>();
         }
 
-        public static void SimpanData(List<Karyawan> daftarKaryawan)
+        public static void SavePenggajian(List<Penggajian> list)
         {
-            var options = new JsonSerializerOptions { WriteIndented = true };
-            string json = JsonSerializer.Serialize(daftarKaryawan, options);
+            var json = JsonSerializer.Serialize(list, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(filePath, json);
+        }
+
+        public static void SavePenggajian(Penggajian item)
+        {
+            var list = LoadPenggajian();
+            int nextId = list.Count > 0 ? list.Max(p => p.Id) + 1 : 1;
+            item.Id = nextId;
+            list.Add(item);
+            SavePenggajian(list);
+        }
+
+        public static void UpdatePenggajian(Penggajian item)
+        {
+            var list = LoadPenggajian();
+            var existing = list.FirstOrDefault(p => p.Id == item.Id);
+            if (existing != null)
+            {
+                existing.IdKaryawan = item.IdKaryawan;
+                existing.Tanggal = item.Tanggal;
+                existing.GajiPokok = item.GajiPokok;
+                SavePenggajian(list);
+            }
+        }
+
+        public static void DeletePenggajian(int id)
+        {
+            var list = LoadPenggajian();
+            var target = list.FirstOrDefault(p => p.Id == id);
+            if (target != null)
+            {
+                list.Remove(target);
+                SavePenggajian(list);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
-﻿using FinalProtingII.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using FinalProtingII.Models;
+using FinalProtingII.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,62 +8,78 @@ namespace FinalProtingII.Controllers
 {
     public class PenggajianController : Controller
     {
-        private static List<Penggajian> data = new List<Penggajian>
-        {
-            new Penggajian { Id = 1, NamaKaryawan = "Budi", Tanggal = DateTime.Today, GajiPokok = 5000000 },
-            new Penggajian { Id = 2, NamaKaryawan = "Sari", Tanggal = DateTime.Today, GajiPokok = 4500000 }
-        };
-
         public IActionResult Index()
         {
-            return View(data);
+            var penggajianList = PenggajianHelper.LoadPenggajian();
+            var karyawanList = KaryawanHelper.LoadKaryawan();
+
+            // Buat dictionary untuk mapping KaryawanId ke Nama
+            var karyawanDict = karyawanList.ToDictionary(k => k.Id, k => k.Nama);
+            ViewBag.KaryawanDict = karyawanDict;
+
+            return View(penggajianList);
         }
 
         public IActionResult Create()
         {
-            return PartialView("_FormCreate", new Penggajian());
+            ViewBag.KaryawanList = KaryawanHelper.LoadKaryawan();
+            return PartialView("_FormCreate");
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Create(Penggajian penggajian)
         {
-            penggajian.Id = data.Any() ? data.Max(x => x.Id) + 1 : 1;
-            data.Add(penggajian);
+            var list = PenggajianHelper.LoadPenggajian();
+            penggajian.Id = list.Any() ? list.Max(p => p.Id) + 1 : 1;
+            list.Add(penggajian);
+            PenggajianHelper.SavePenggajian(list);
             return RedirectToAction("Index");
         }
 
         public IActionResult Edit(int id)
         {
-            var item = data.FirstOrDefault(x => x.Id == id);
-            return PartialView("_FormEdit", item);
+            var penggajian = PenggajianHelper.LoadPenggajian().FirstOrDefault(p => p.Id == id);
+            if (penggajian == null) return NotFound();
+
+            ViewBag.KaryawanList = KaryawanHelper.LoadKaryawan();
+            return PartialView("_FormEdit", penggajian);
         }
 
         [HttpPost]
-        public IActionResult Edit(Penggajian penggajian)
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Penggajian updated)
         {
-            var existing = data.FirstOrDefault(x => x.Id == penggajian.Id);
-            if (existing != null)
-            {
-                existing.NamaKaryawan = penggajian.NamaKaryawan;
-                existing.Tanggal = penggajian.Tanggal;
-                existing.GajiPokok = penggajian.GajiPokok;
-            }
+            var list = PenggajianHelper.LoadPenggajian();
+            var existing = list.FirstOrDefault(p => p.Id == updated.Id);
+            if (existing == null) return NotFound();
+
+            existing.IdKaryawan = updated.IdKaryawan;
+            existing.Tanggal = updated.Tanggal;
+            existing.GajiPokok = updated.GajiPokok;
+
+            PenggajianHelper.SavePenggajian(list);
             return RedirectToAction("Index");
         }
 
         public IActionResult Delete(int id)
         {
-            var item = data.FirstOrDefault(x => x.Id == id);
-            return PartialView("_FormDelete", item);
+            var penggajian = PenggajianHelper.LoadPenggajian().FirstOrDefault(p => p.Id == id);
+            var karyawan = KaryawanHelper.LoadKaryawan().FirstOrDefault(k => k.Id == penggajian?.IdKaryawan);
+            ViewBag.NamaKaryawan = karyawan?.Nama ?? "Tidak Diketahui";
+            return PartialView("_FormDelete", penggajian);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var item = data.FirstOrDefault(x => x.Id == id);
+            var list = PenggajianHelper.LoadPenggajian();
+            var item = list.FirstOrDefault(p => p.Id == id);
             if (item != null)
             {
-                data.Remove(item);
+                list.Remove(item);
+                PenggajianHelper.SavePenggajian(list);
             }
             return RedirectToAction("Index");
         }

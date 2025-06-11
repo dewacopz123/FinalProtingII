@@ -6,7 +6,8 @@
     "Telepon": "081220515014",
     "Role": 0,
     "Status": 1,
-    "Jobdesks": []
+    "Jobdesks": [],
+    "Penggajians": []
   },
   {
     "Id": 2,
@@ -15,6 +16,17 @@
     "Telepon": "0812",
     "Role": 0,
     "Status": 1,
-    "Jobdesks": []
+    "Jobdesks": [],
+    "Penggajians": []
+  },
+  {
+    "Id": 3,
+    "Nama": "fadli",
+    "Email": "fadli@gmail.com",
+    "Telepon": "08123232",
+    "Role": 0,
+    "Status": 1,
+    "Jobdesks": [],
+    "Penggajians": []
   }
 ]

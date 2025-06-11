@@ -10,7 +10,7 @@
             <form asp-action="DeleteConfirmed" method="post">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="id" value="@Model.Id" />
-                <div class="modal-header">
+                <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">Hapus Karyawan</h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
