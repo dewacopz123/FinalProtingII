@@ -9,8 +9,9 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <label>Nama Jobdesk</label>
+                    <label asp-for="NamaJobdesk"></label>
                     <input asp-for="NamaJobdesk" class="form-control" />
+                    <span asp-validation-for="NamaJobdesk" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label>Tugas Utama (pisahkan dengan koma)</label>
