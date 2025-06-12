@@ -6,18 +6,17 @@ namespace FinalProtingII.Controllers
 {
     public class JobdeskController : Controller
     {
+        // Menampilkan daftar semua jobdesk
         public IActionResult Index()
         {
             var jobdesks = JobdeskHelper.LoadJobdesk();
             var assignments = JobdeskAssignmentHelper.LoadAssignments();
             var allKaryawans = KaryawanHelper.LoadKaryawan();
 
-            // Mapping jobdesk ke karyawan
-            var jobdeskToKaryawans = KaryawanJobdeskService.GetKaryawansForJobdesks(jobdesks.Select(j => j.IdJobdesk).ToList());
+            var jobdeskToKaryawans = KaryawanJobdeskService.GetKaryawansForJobdesks(
+                jobdesks.Select(j => j.IdJobdesk).ToList());
 
             ViewBag.JobdeskToKaryawans = jobdeskToKaryawans;
-
-            // Dropdown data
             ViewBag.JobdeskNames = jobdesks
                 .Select(j => j.NamaJobdesk)
                 .Where(n => !string.IsNullOrEmpty(n))
@@ -33,18 +32,21 @@ namespace FinalProtingII.Controllers
             return View(jobdesks);
         }
 
+        // Menampilkan form create (partial view)
+        public IActionResult Create() => PartialView("_FormCreate", new Jobdesk());
 
-        public IActionResult Create()
-        {
-            return PartialView("_FormCreate", new Jobdesk());
-        }
-
+        // Menangani form submit untuk menambah jobdesk baru
         [HttpPost]
         public IActionResult Create(Jobdesk model, string TugasUtamaString)
         {
             var jobdesks = JobdeskHelper.LoadJobdesk();
-            model.IdJobdesk = jobdesks.Count > 0 ? jobdesks.Max(j => j.IdJobdesk) + 1 : 1;
 
+            // Mengatur ID otomatis
+            model.IdJobdesk = jobdesks.Count > 0
+                ? jobdesks.Max(j => j.IdJobdesk) + 1
+                : 1;
+
+            // Memproses string tugas utama menjadi list
             if (!string.IsNullOrWhiteSpace(TugasUtamaString))
             {
                 model.TugasUtama = TugasUtamaString
@@ -55,9 +57,11 @@ namespace FinalProtingII.Controllers
             }
 
             JobdeskHelper.TambahJobdesk(model);
+
             return RedirectToAction("Index");
         }
 
+        // Menampilkan form assign (partial view)
         public IActionResult Assign()
         {
             ViewBag.Karyawans = KaryawanHelper.LoadKaryawan();
@@ -65,22 +69,32 @@ namespace FinalProtingII.Controllers
             return PartialView("_FormAssign");
         }
 
+        // Menangani submit assign jobdesk ke karyawan
         [HttpPost]
         public IActionResult Assign(int jobdeskId, int karyawanId)
         {
-            JobdeskAssignmentHelper.TambahAssignment(new JobdeskAssignment
+            if (jobdeskId == 0 || karyawanId == 0)
+            {
+                TempData["Error"] = "Silakan pilih Jobdesk dan Karyawan.";
+                return RedirectToAction("Index");
+            }
+
+            var assignment = new JobdeskAssignment
             {
                 JobdeskId = jobdeskId,
                 KaryawanId = karyawanId
-            });
+            };
+
+            JobdeskAssignmentHelper.TambahAssignment(assignment);
+            TempData["Success"] = "Jobdesk berhasil diberikan ke karyawan.";
 
             return RedirectToAction("Index");
         }
 
+        // Menangani reassignment jobdesk ke karyawan baru
         [HttpPost]
-        public IActionResult Edit(int jobdeskId, int karyawanId)
+        public IActionResult Reassign(int jobdeskId, int karyawanId)
         {
-            // Hapus semua assignment jobdesk ini, lalu tambah assignment baru
             JobdeskAssignmentHelper.HapusAssignmentsByJobdesk(jobdeskId);
 
             JobdeskAssignmentHelper.TambahAssignment(new JobdeskAssignment
@@ -92,42 +106,42 @@ namespace FinalProtingII.Controllers
             return RedirectToAction("Index");
         }
 
+        // Menampilkan konfirmasi penghapusan jobdesk
         public IActionResult Delete(int id)
         {
             var jobdesk = JobdeskHelper.GetById(id);
             return PartialView("_FormDelete", jobdesk);
         }
 
+        // Menangani penghapusan jobdesk dan assignment-nya
         [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
             JobdeskAssignmentHelper.HapusAssignmentsByJobdesk(id);
             JobdeskHelper.HapusJobdesk(id);
+
             return RedirectToAction("Index");
         }
 
+        // Menampilkan hasil pencarian berdasarkan nama jobdesk dan/atau nama karyawan
         public IActionResult Search(string jobdeskName, string karyawanName)
         {
-            // Cari jobdesk berdasarkan filter jobdeskName dan karyawanName
             var filteredJobdesks = KaryawanJobdeskService.SearchJobdesk(nama: jobdeskName);
-
-            List<int> jobdeskIds = filteredJobdesks.Select(j => j.IdJobdesk).ToList();
+            var jobdeskIds = filteredJobdesks.Select(j => j.IdJobdesk).ToList();
 
             if (!string.IsNullOrWhiteSpace(karyawanName))
             {
-                // Cari karyawan yang sesuai filter karyawanName
                 var filteredKaryawans = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
                 var karyawanIds = filteredKaryawans.Select(k => k.Id).ToList();
 
-                // Cari jobdesk yang terkait karyawan tsb
                 var assignments = JobdeskAssignmentHelper.LoadAssignments();
+
                 var jobdeskIdsByKaryawan = assignments
                     .Where(a => karyawanIds.Contains(a.KaryawanId))
                     .Select(a => a.JobdeskId)
                     .Distinct()
                     .ToList();
 
-                // Intersect jobdesk hasil filter jobdeskName dan karyawanName
                 jobdeskIds = jobdeskIds.Intersect(jobdeskIdsByKaryawan).ToList();
 
                 filteredJobdesks = filteredJobdesks
@@ -135,9 +149,7 @@ namespace FinalProtingII.Controllers
                     .ToList();
             }
 
-            // Mapping jobdesk ke karyawan untuk jobdesk yang difilter
             var jobdeskToKaryawans = KaryawanJobdeskService.GetKaryawansForJobdesks(jobdeskIds);
-
             var allKaryawans = KaryawanHelper.LoadKaryawan();
             var allJobdesks = JobdeskHelper.LoadJobdesk();
 
@@ -156,6 +168,46 @@ namespace FinalProtingII.Controllers
             ViewBag.JobdeskToKaryawans = jobdeskToKaryawans;
 
             return View("Index", filteredJobdesks);
+        }
+
+        // Menampilkan form edit (GET)
+        [HttpGet("Jobdesk/Edit/{id}")]
+        [ActionName("Edit")]
+        public IActionResult EditGet(int id)
+        {
+            var jobdesk = JobdeskHelper.GetById(id);
+            return PartialView("_FormEdit", jobdesk);
+        }
+
+        // Menyimpan perubahan data jobdesk (POST)
+        [HttpPost("Jobdesk/Edit/{id}")]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Jobdesk model, string TugasUtamaString)
+        {
+            var jobdesks = JobdeskHelper.LoadJobdesk();
+            var existingJobdesk = jobdesks.FirstOrDefault(j => j.IdJobdesk == id);
+
+            if (existingJobdesk == null)
+            {
+                return NotFound();
+            }
+
+            // Update nama jobdesk
+            existingJobdesk.NamaJobdesk = model.NamaJobdesk;
+
+            // Update tugas utama jika diberikan
+            if (!string.IsNullOrWhiteSpace(TugasUtamaString))
+            {
+                existingJobdesk.TugasUtama = TugasUtamaString
+                    .Split(',')
+                    .Select(t => t.Trim())
+                    .Where(t => !string.IsNullOrEmpty(t))
+                    .ToList();
+            }
+
+            JobdeskHelper.SimpanJobdesk(jobdesks);
+
+            return RedirectToAction("Index");
         }
     }
 }

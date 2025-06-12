@@ -1,18 +1,29 @@
 [
   {
     "IdJobdesk": 3,
-    "NamaJobdesk": "jobdesk3",
+    "NamaJobdesk": "jobdesk33",
     "TugasUtama": [
-      "aefwef"
+      "tetete",
+      "titititit",
+      "totototo"
     ]
   },
   {
     "IdJobdesk": 4,
-    "NamaJobdesk": "jobdesk4",
+    "NamaJobdesk": "jobdesk4675785785",
     "TugasUtama": [
       "1",
       "2",
       "3"
+    ]
+  },
+  {
+    "IdJobdesk": 5,
+    "NamaJobdesk": "tes",
+    "TugasUtama": [
+      "lalala",
+      "lelele",
+      "lololo"
     ]
   }
 ]
