@@ -28,5 +28,25 @@
     "Status": 1,
     "Jobdesks": [],
     "Penggajians": []
+  },
+  {
+    "Id": 4,
+    "Nama": "dsfsffs",
+    "Email": "ASDSADA@gmail.com",
+    "Telepon": "83483355354",
+    "Role": 0,
+    "Status": 1,
+    "Jobdesks": [],
+    "Penggajians": []
+  },
+  {
+    "Id": 5,
+    "Nama": "ewrwerw",
+    "Email": "asdsadadas@gmail.com",
+    "Telepon": "08122051",
+    "Role": 0,
+    "Status": 1,
+    "Jobdesks": [],
+    "Penggajians": []
   }
 ]

@@ -39,6 +39,30 @@ namespace FinalProtingII.Controllers
             return View(penggajianList);
         }
 
+        public PenggajianStatus GetNextStatus(PenggajianStatus current)
+        {
+            return current switch
+            {
+                PenggajianStatus.Draft => PenggajianStatus.Submitted,
+                PenggajianStatus.Submitted => PenggajianStatus.Approved,
+                PenggajianStatus.Approved => PenggajianStatus.Paid,
+                _ => current
+            };
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdvanceStatus(int id)
+        {
+            var list = PenggajianHelper.LoadPenggajian();
+            var penggajian = list.FirstOrDefault(p => p.Id == id);
+            if (penggajian == null) return NotFound();
+
+            penggajian.Status = GetNextStatus(penggajian.Status);
+            PenggajianHelper.SavePenggajian(list);
+            return RedirectToAction("Index");
+        }
+
 
         public IActionResult Create()
         {

@@ -8,6 +8,7 @@
             <th>Nama Karyawan</th>
             <th>Tanggal</th>
             <th>Gaji Pokok</th>
+            <th>Status</th>
             <th>Aksi</th>
         </tr>
     </thead>
@@ -18,8 +19,17 @@
                 <td>@karyawanDict.GetValueOrDefault(item.IdKaryawan)</td>
                 <td>@item.Tanggal.ToString("yyyy-MM-dd")</td>
                 <td>@item.GajiPokok.ToString("C")</td>
+                <td>@item.Status</td>
                 <td>
-                    <a href="#" class="btn btn-warning btn-sm open-modal" data-url="@Url.Action("Edit", "Penggajian", new { id = item.Id })">Edit</a>
+                    <form asp-action="AdvanceStatus" method="post" style="display:inline">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <button type="submit" class="btn btn-sm btn-warning"
+                        @(item.Status == FinalProtingII.Models.PenggajianStatus.Paid ? "disabled" : "")>
+                            Next Status
+                        </button>
+                    </form>
+                    @* <a href="#" class="btn btn-warning btn-sm open-modal" data-url="@Url.Action("Edit", "Penggajian", new { id = item.Id })">Edit</a> *@
                     <a href="#" class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", "Penggajian", new { id = item.Id })">Hapus</a>
                 </td>
             </tr>

@@ -1,6 +1,7 @@
 ﻿@model List<FinalProtingII.Models.Jobdesk>
 @using System.Linq
 @{
+    var role = Context.Session.GetString("role");
     var jobdeskToKaryawans = ViewBag.JobdeskToKaryawans as Dictionary<int, List<string>>;
 }
 
@@ -25,7 +26,10 @@
                                 <th>Nama Jobdesk</th>
                                 <th>Tugas Utama</th>
                                 <th>Nama Karyawan</th>
-                                <th>Aksi</th>
+                                @if (role == "admin")
+                                {
+                                    <th>Aksi</th>
+                                }
                             </tr>
                         </thead>
                         <tbody>
@@ -57,10 +61,13 @@
                                             <span>-</span>
                                         }
                                     </td>
+                                    @if (role == "admin")
+                                    {
                                     <td>
                                         <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Edit", new { id = item.IdJobdesk })">Edit</button>
                                         <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.IdJobdesk })">Hapus</button>
                                     </td>
+                                    }
                                 </tr>
                             }
                         </tbody>

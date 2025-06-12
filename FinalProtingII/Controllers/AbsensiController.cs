@@ -10,33 +10,56 @@ public class AbsensiController : Controller
     public IActionResult Index()
     {
         var nama = HttpContext.Session.GetString("Username") ?? "Unknown";
+        var role = HttpContext.Session.GetString("role") ?? "Unknown";
 
-        var absensiList = LoadAbsensi();
+        var absensiList = LoadData<Absensi>();
 
-        var absensiUser = absensiList
-            .Where(a => a.NamaKaryawan == nama)
-            .OrderByDescending(a => a.Tanggal)
-            .ToList();
+        List<Absensi> absensiUser;
+
+        if (role == "admin")
+        {
+            // Admin melihat semua absensi
+            absensiUser = absensiList.OrderByDescending(a => a.Tanggal).ToList();
+        }
+        else
+        {
+            // Karyawan hanya melihat absensi mereka sendiri
+            absensiUser = absensiList
+                .Where(a => a.NamaKaryawan == nama)
+                .OrderByDescending(a => a.Tanggal)
+                .ToList();
+        }
 
         return View(absensiUser);
+
     }
 
-    // Load absensi dari file setiap akses (atau bisa dioptimalkan pakai cache jika perlu)
-    private List<Absensi> LoadAbsensi()
+    // FUNGSI GENERIC
+    private List<T> LoadData<T>()
     {
-        // AbsensiHelper perlu diupdate untuk support Absensi (bukan Karyawan)
-        return AbsensiHelper.LoadAbsensi();
+        if (typeof(T) == typeof(Absensi))
+        {
+            return AbsensiHelper.LoadAbsensi() as List<T>;
+        }
+
+        throw new NotSupportedException("Tipe data tidak dikenali.");
     }
 
-    // Simpan absensi ke file
-    private void SaveAbsensi(List<Absensi> list)
+    private void SaveData<T>(List<T> list)
     {
-        AbsensiHelper.SaveAbsensi(list);
+        if (typeof(T) == typeof(Absensi))
+        {
+            AbsensiHelper.SaveAbsensi(list as List<Absensi>);
+
+            return;
+        }
+
+        throw new NotSupportedException("Tipe data tidak dikenali.");
     }
 
     private bool SudahAbsensiHariIni(string namaKaryawan, DateTime tanggal, string status)
     {
-        var absensiList = LoadAbsensi();
+        var absensiList = LoadData<Absensi>();
 
         return absensiList.Any(a =>
             a.NamaKaryawan == namaKaryawan &&
@@ -46,7 +69,7 @@ public class AbsensiController : Controller
 
     private void TambahAbsensi(string namaKaryawan, string status)
     {
-        var absensiList = LoadAbsensi();
+        var absensiList = LoadData<Absensi>();
 
         absensiList.Add(new Absensi
         {
@@ -56,7 +79,7 @@ public class AbsensiController : Controller
             Status = status
         });
 
-        SaveAbsensi(absensiList);
+        SaveData(absensiList);
     }
 
     [HttpPost]
@@ -68,10 +91,12 @@ public class AbsensiController : Controller
         if (SudahAbsensiHariIni(nama, today, "Masuk"))
         {
             TempData["Error"] = "Anda sudah melakukan Masuk Kerja hari ini.";
+
             return RedirectToAction("Index");
         }
 
         TambahAbsensi(nama, "Masuk");
+
         return RedirectToAction("Index");
     }
 
@@ -84,16 +109,19 @@ public class AbsensiController : Controller
         if (!SudahAbsensiHariIni(nama, today, "Masuk"))
         {
             TempData["Error"] = "Anda belum melakukan Masuk Kerja hari ini.";
+
             return RedirectToAction("Index");
         }
 
         if (SudahAbsensiHariIni(nama, today, "Selesai"))
         {
             TempData["Error"] = "Anda sudah melakukan Selesai Kerja hari ini.";
+
             return RedirectToAction("Index");
         }
 
         TambahAbsensi(nama, "Selesai");
+
         return RedirectToAction("Index");
     }
 

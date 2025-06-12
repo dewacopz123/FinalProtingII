@@ -5,7 +5,8 @@
     "NamaKaryawan": null,
     "Tanggal": "2025-06-11T00:00:00",
     "GajiPokok": 1000000000000,
-    "Karyawan": null
+    "Karyawan": null,
+    "Status": 0
   },
   {
     "Id": 2,
@@ -13,6 +14,7 @@
     "NamaKaryawan": null,
     "Tanggal": "2025-06-19T00:00:00",
     "GajiPokok": 123455,
-    "Karyawan": null
+    "Karyawan": null,
+    "Status": 0
   }
 ]
