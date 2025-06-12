@@ -3,17 +3,34 @@ using FinalProtingII.Models;
 using FinalProtingII.Helpers;
 using System.Linq;
 using System.Collections.Generic;
+using System;
 
 namespace FinalProtingII.Controllers
 {
     public class DataKaryawanController : Controller
     {
+        // Generic helper method
+        private List<T> LoadData<T>()
+        {
+            if (typeof(T) == typeof(Karyawan))
+                return KaryawanHelper.LoadKaryawan() as List<T>;
+
+            throw new NotSupportedException($"Tipe {typeof(T).Name} tidak didukung.");
+        }
+
+        private void SaveData<T>(List<T> data)
+        {
+            if (typeof(T) == typeof(Karyawan))
+                KaryawanHelper.SimpanKaryawan(data as List<Karyawan>);
+            else
+                throw new NotSupportedException($"Tipe {typeof(T).Name} tidak didukung.");
+        }
+
         public IActionResult Index(string karyawanName)
         {
-            // Pakai service pencarian reusable
             var allData = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
 
-            ViewBag.KaryawanNames = KaryawanHelper.LoadKaryawan()
+            ViewBag.KaryawanNames = LoadData<Karyawan>()
                 .Select(k => k.Nama)
                 .Distinct()
                 .ToList();
@@ -30,10 +47,10 @@ namespace FinalProtingII.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Karyawan karyawan)
         {
-            var list = KaryawanHelper.LoadKaryawan();
+            var list = LoadData<Karyawan>();
             karyawan.Id = list.Any() ? list.Max(k => k.Id) + 1 : 1;
             list.Add(karyawan);
-            KaryawanHelper.SimpanKaryawan(list);
+            SaveData(list);
             return RedirectToAction("Index");
         }
 
@@ -50,12 +67,11 @@ namespace FinalProtingII.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Karyawan updated)
         {
-            var list = KaryawanHelper.LoadKaryawan();
+            var list = LoadData<Karyawan>();
             var existing = list.FirstOrDefault(k => k.Id == updated.Id);
             if (existing == null)
                 return NotFound();
 
-            // Table-driven technique untuk update properti karyawan
             var updateActions = new Dictionary<string, Action>
             {
                 { "Nama", () => existing.Nama = updated.Nama },
@@ -70,7 +86,7 @@ namespace FinalProtingII.Controllers
                 action.Invoke();
             }
 
-            KaryawanHelper.SimpanKaryawan(list);
+            SaveData(list);
             return RedirectToAction("Index");
         }
 
@@ -87,12 +103,12 @@ namespace FinalProtingII.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var list = KaryawanHelper.LoadKaryawan();
+            var list = LoadData<Karyawan>();
             var item = list.FirstOrDefault(k => k.Id == id);
             if (item != null)
             {
                 list.Remove(item);
-                KaryawanHelper.SimpanKaryawan(list);
+                SaveData(list);
             }
             return RedirectToAction("Index");
         }
@@ -102,7 +118,7 @@ namespace FinalProtingII.Controllers
         {
             var karyawanList = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
 
-            ViewBag.KaryawanNames = KaryawanHelper.LoadKaryawan()
+            ViewBag.KaryawanNames = LoadData<Karyawan>()
                 .Select(k => k.Nama)
                 .Distinct()
                 .ToList();
