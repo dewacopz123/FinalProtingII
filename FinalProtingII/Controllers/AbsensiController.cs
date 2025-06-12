@@ -12,7 +12,7 @@ public class AbsensiController : Controller
         var nama = HttpContext.Session.GetString("Username") ?? "Unknown";
         var role = HttpContext.Session.GetString("role") ?? "Unknown";
 
-        var absensiList = LoadAbsensi();
+        var absensiList = LoadData<Absensi>();
 
         List<Absensi> absensiUser;
 
@@ -33,20 +33,31 @@ public class AbsensiController : Controller
         return View(absensiUser);
     }
 
-
-    private List<Absensi> LoadAbsensi()
+    // FUNGSI GENERIC
+    private List<T> LoadData<T>()
     {
-        return AbsensiHelper.LoadAbsensi();
+        if (typeof(T) == typeof(Absensi))
+        {
+            return AbsensiHelper.LoadAbsensi() as List<T>;
+        }
+
+        throw new NotSupportedException("Tipe data tidak dikenali.");
     }
 
-    private void SaveAbsensi(List<Absensi> list)
+    private void SaveData<T>(List<T> list)
     {
-        AbsensiHelper.SaveAbsensi(list);
+        if (typeof(T) == typeof(Absensi))
+        {
+            AbsensiHelper.SaveAbsensi(list as List<Absensi>);
+            return;
+        }
+
+        throw new NotSupportedException("Tipe data tidak dikenali.");
     }
 
     private bool SudahAbsensiHariIni(string namaKaryawan, DateTime tanggal, string status)
     {
-        var absensiList = LoadAbsensi();
+        var absensiList = LoadData<Absensi>();
 
         return absensiList.Any(a =>
             a.NamaKaryawan == namaKaryawan &&
@@ -56,7 +67,7 @@ public class AbsensiController : Controller
 
     private void TambahAbsensi(string namaKaryawan, string status)
     {
-        var absensiList = LoadAbsensi();
+        var absensiList = LoadData<Absensi>();
 
         absensiList.Add(new Absensi
         {
@@ -66,7 +77,7 @@ public class AbsensiController : Controller
             Status = status
         });
 
-        SaveAbsensi(absensiList);
+        SaveData(absensiList);
     }
 
     [HttpPost]
@@ -81,12 +92,10 @@ public class AbsensiController : Controller
             return RedirectToAction("Index");
         }
 
-        // Catat absensi dengan nama user yang login
         TambahAbsensi(nama, "Masuk");
 
         return RedirectToAction("Index");
     }
-
 
     [HttpPost]
     public IActionResult SelesaiKerja()
@@ -106,13 +115,10 @@ public class AbsensiController : Controller
             return RedirectToAction("Index");
         }
 
-        // Catat absensi dengan nama user yang login
         TambahAbsensi(nama, "Selesai");
 
         return RedirectToAction("Index");
     }
-
-
 
     [HttpGet]
     public IActionResult Search(string karyawanName)

@@ -26,7 +26,10 @@
                                 <th>Nama Jobdesk</th>
                                 <th>Tugas Utama</th>
                                 <th>Nama Karyawan</th>
-                                <th>Aksi</th>
+                                @if (role == "admin")
+                                {
+                                    <th>Aksi</th>
+                                }
                             </tr>
                         </thead>
                         <tbody>
@@ -58,13 +61,13 @@
                                             <span>-</span>
                                         }
                                     </td>
-                                   <td>
-                                        @if (role == "admin")
-                                        {
-                                            <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Edit", new { id = item.IdJobdesk })">Edit</button>
-                                            <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.IdJobdesk })">Hapus</button>
-                                        }
+                                    @if (role == "admin")
+                                    {
+                                    <td>
+                                        <button class="btn btn-primary btn-sm open-modal" data-url="@Url.Action("Edit", new { id = item.IdJobdesk })">Edit</button>
+                                        <button class="btn btn-danger btn-sm open-modal" data-url="@Url.Action("Delete", new { id = item.IdJobdesk })">Hapus</button>
                                     </td>
+                                    }
                                 </tr>
                             }
                         </tbody>
