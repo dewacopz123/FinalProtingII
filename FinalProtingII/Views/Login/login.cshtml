@@ -94,6 +94,36 @@
             });
         });
 
+        function Validate() {
+            $("#btn_login").prop("disabled", true).text("Signing in...");
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Validate", "Login")',
+                data: {
+                    USERNAME: $('#username').val(),
+                    PASSWORD: $('#password').val()
+                },
+                error: function (result) {
+                    $("#btn_login").prop("disabled", false).text("Sign In");
+                    $.bootstrapGrowl("Server error", {
+                        type: 'danger',
+                        align: 'right',
+                        delay: 3000
+                    });
+                },
+                success: function (result) {
+                    $("#btn_login").prop("disabled", false).text("Sign In");
+                    if (result.status === true) {
+                        window.location.href = '@Url.Action("Index", "Absensi")';
+                    } else {
+                        $.bootstrapGrowl(result.message, {
+                            type: 'danger',
+                            align: 'right',
+                            delay: 3000
+                        });
+                    }
+                }
+            });
         }
     </script>
 </body>
