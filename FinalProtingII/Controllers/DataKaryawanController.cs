@@ -2,6 +2,7 @@
 using FinalProtingII.Models;
 using FinalProtingII.Helpers;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace FinalProtingII.Controllers
 {
@@ -54,11 +55,20 @@ namespace FinalProtingII.Controllers
             if (existing == null)
                 return NotFound();
 
-            existing.Nama = updated.Nama;
-            existing.Email = updated.Email;
-            existing.Telepon = updated.Telepon;
-            existing.Role = updated.Role;
-            existing.Status = updated.Status;
+            // Table-driven technique untuk update properti karyawan
+            var updateActions = new Dictionary<string, Action>
+            {
+                { "Nama", () => existing.Nama = updated.Nama },
+                { "Email", () => existing.Email = updated.Email },
+                { "Telepon", () => existing.Telepon = updated.Telepon },
+                { "Role", () => existing.Role = updated.Role },
+                { "Status", () => existing.Status = updated.Status }
+            };
+
+            foreach (var action in updateActions.Values)
+            {
+                action.Invoke();
+            }
 
             KaryawanHelper.SimpanKaryawan(list);
             return RedirectToAction("Index");
