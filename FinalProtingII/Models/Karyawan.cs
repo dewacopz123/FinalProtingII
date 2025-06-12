@@ -4,7 +4,8 @@ namespace FinalProtingII.Models
 {
     public enum Role
     {
-        Karyawan
+        Karyawan,
+        Admin
     }
 
     public class Karyawan
@@ -15,6 +16,9 @@ namespace FinalProtingII.Models
         public string Telepon { get; set; }
         public Role Role { get; set; }
         public int Status { get; set; }
+
+        public List<Jobdesk> Jobdesks { get; set; } = new List<Jobdesk>();
+        public List<Penggajian> Penggajians { get; set; } = new List<Penggajian>();
 
     }
 }

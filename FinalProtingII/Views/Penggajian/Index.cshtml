@@ -1,6 +1,8 @@
-﻿@model List<FinalProtingII.Models.Penggajian>
+﻿@model IEnumerable<FinalProtingII.Models.Penggajian>
+
 @{
-    ViewData["Title"] = "Penggajian";
+    ViewBag.Title = "Data Penggajian";
+    ViewBag.ActiveMenu = "Penggajian";
 }
 
 <section class="content">
@@ -14,38 +16,36 @@
             @Html.Partial("_SearchCriteria")
         </div>
         <div id="divGrid">
-            @Html.Partial("_GridView")
+            @Html.Partial("_GridView", Model)
         </div>
     </div>
 </section>
 
-<!-- Container untuk load modal partial -->
+<!-- Modal container -->
 <div id="penggajian"></div>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('.open-modal').click(function (e) {
+            // Buka modal (Create/Edit/Delete)
+            $(document).on('click', '.open-modal', function (e) {
                 e.preventDefault();
                 var url = $(this).data('url');
-
                 $.get(url, function (data) {
-                    $('#penggajian').html(data);
-                    $('#penggajian').find('.modal').modal('show');
+                    $('#penggajian').html(data); // isi kontainer modal
                 });
-            });
-
-            // Tutup modal (dengan tombol atau close icon)
-            $(document).on('click', '.modal .close, .modal .btn-secondary[data-dismiss="modal"]', function () {
-                $(this).closest('.modal').modal('hide');
             });
 
             // Tutup modal via tombol "Batal" atau "X"
             $(document).on('click', '.modal .close, .modal [data-dismiss="modal"]', function () {
                 $(this).closest('.modal').modal('hide');
             });
+
+            // Bersihkan modal & refresh grid saat modal ditutup
+            $('#penggajian').on('hidden.bs.modal', '.modal', function () {
+                $('#penggajian').empty();
+                location.reload();
+            });
         });
     </script>
 }
-
-

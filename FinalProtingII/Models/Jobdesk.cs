@@ -8,6 +8,5 @@ namespace FinalProtingII.Models
         public int IdJobdesk { get; set; }
         public string NamaJobdesk { get; set; }
         public List<string> TugasUtama { get; set; } = new List<string>();
-        public string KaryawanNama { get; set; } // nama karyawan yang ditugaskan
     }
 }

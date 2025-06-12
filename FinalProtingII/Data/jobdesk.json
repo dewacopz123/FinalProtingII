@@ -1,0 +1,18 @@
+[
+  {
+    "IdJobdesk": 3,
+    "NamaJobdesk": "jobdesk3",
+    "TugasUtama": [
+      "aefwef"
+    ]
+  },
+  {
+    "IdJobdesk": 4,
+    "NamaJobdesk": "jobdesk4",
+    "TugasUtama": [
+      "1",
+      "2",
+      "3"
+    ]
+  }
+]

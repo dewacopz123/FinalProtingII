@@ -1,47 +1,60 @@
-﻿<div class="box-header">
-    <div class="row">
-        <div class="col-lg-12 form-horizontal">
-            <div class="box box-default box-solid">
-                <div class="container-fluid">
-                    <div class="card card-primary card-outline">
-                        <div class="card-header bg-primary text-white">
-                            <h4 class="card-title mb-0">Search Jobdesk</h4>
-                        </div>
-                        <div class="card-body" style="padding: 25px">
-                            <div class="row justify-content-center mb-3">
-                                <div class="d-flex align-items-center" style="gap: 40px;">
-                                    <!-- Nama Karyawan -->
-                                    <div class="form-group d-flex align-items-center mb-0">
-                                        <label for="searchKaryawanName" class="mb-0 font-weight-bold col-5">Nama Karyawan</label>
-                                        <select class="form-control" id="searchKaryawanName" style="min-width: 200px;">
-                                            <option value="">-- Choose --</option>
-                                        </select>
+﻿<form method="get" asp-action="Search" asp-controller="Jobdesk">
+    <div class="box-header">
+        <div class="row">
+            <div class="col-lg-12 form-horizontal">
+                <div class="box box-default box-solid">
+                    <div class="container-fluid">
+                        <div class="card card-primary card-outline">
+                            <div class="card-header bg-primary text-white">
+                                <h4 class="card-title mb-0">Search Jobdesk</h4>
+                            </div>
+                            <div class="card-body" style="padding: 25px">
+                                <div class="row justify-content-center mb-3">
+                                    <div class="d-flex align-items-center" style="gap: 40px;">
+                                        <!-- Nama Jobdesk -->
+                                        <div class="form-group d-flex align-items-center mb-0">
+                                            <label for="searchJobdeskName" class="mb-0 font-weight-bold col-5">Nama Jobdesk</label>
+                                            <select class="form-control" id="searchJobdeskName" name="jobdeskName" style="min-width: 200px;">
+                                                <option value="">-- Choose --</option>
+                                                @foreach (var name in ViewBag.JobdeskNames as List<string>)
+                                                {
+                                                    <option value="@name">@name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <!-- Nama Karyawan -->
+                                        <div class="form-group d-flex align-items-center mb-0">
+                                            <label for="searchKaryawanName" class="mb-0 font-weight-bold col-5">Nama Karyawan</label>
+                                            <select class="form-control" id="searchKaryawanName" name="karyawanName" style="min-width: 200px;">
+                                                <option value="">-- Choose --</option>
+                                                @foreach (var name in ViewBag.KaryawanNames as List<string>)
+                                                {
+                                                    <option value="@name">@name</option>
+                                                }
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <button type="submit" class="btn btn-info">Search</button>
+                                        </div>
                                     </div>
-
-                                    <!-- Waktu -->
-                                    <div class="form-group d-flex align-items-center mb-0">
-                                        <label for="searchDate" class="mr-2 mb-0 font-weight-bold">Tanggal</label>
-                                        <input type="date" class="form-control" id="searchDate" style="min-width: 200px;" />
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-auto">
-                            <button class="btn btn-success mb-2 me-2 open-modal" data-url="@Url.Action("Create")">
-                                + Tambah Jobdesk
-                            </button>
-                        </div>
-                        <div class="col-auto">
-                            <button class="btn btn-primary mb-2 open-modal" data-url="@Url.Action("Assign")">
-                                + Tambah Jobdesk ke Karyawan
-                            </button>
+                        <div class="row">
+                            <div class="col-auto">
+                                <button class="btn btn-success mb-2 me-2 open-modal" data-url="@Url.Action("Create")" type="button">
+                                    + Tambah Jobdesk
+                                </button>
+                            </div>
+                            <div class="col-auto">
+                                <button class="btn btn-primary mb-2 open-modal" data-url="@Url.Action("Assign")" type="button">
+                                    + Tambah Jobdesk ke Karyawan
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</form>

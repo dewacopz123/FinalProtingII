@@ -1,0 +1,18 @@
+[
+  {
+    "Id": 1,
+    "IdKaryawan": 1,
+    "NamaKaryawan": null,
+    "Tanggal": "2025-06-11T00:00:00",
+    "GajiPokok": 1000000000000,
+    "Karyawan": null
+  },
+  {
+    "Id": 2,
+    "IdKaryawan": 3,
+    "NamaKaryawan": null,
+    "Tanggal": "2025-06-19T00:00:00",
+    "GajiPokok": 123455,
+    "Karyawan": null
+  }
+]
