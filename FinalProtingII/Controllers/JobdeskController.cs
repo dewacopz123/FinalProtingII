@@ -36,6 +36,7 @@ namespace FinalProtingII.Controllers
             }
 
             JobdeskHelper.TambahJobdesk(model);
+            
             return RedirectToAction("Index");
         }
 
@@ -43,6 +44,7 @@ namespace FinalProtingII.Controllers
         {
             ViewBag.Karyawans = KaryawanHelper.LoadKaryawan();
             ViewBag.Jobdesks = JobdeskHelper.LoadJobdesk();
+            
             return PartialView("_FormAssign");
         }
 
@@ -52,6 +54,7 @@ namespace FinalProtingII.Controllers
             if (jobdeskId == 0 || karyawanId == 0)
             {
                 TempData["Error"] = "Silakan pilih Jobdesk dan Karyawan.";
+            
                 return RedirectToAction("Index");
             }
 
@@ -59,6 +62,7 @@ namespace FinalProtingII.Controllers
             JobdeskAssignmentHelper.TambahAssignment(assignment);
 
             TempData["Success"] = "Jobdesk berhasil diberikan ke karyawan.";
+            
             return RedirectToAction("Index");
         }
 
@@ -79,6 +83,7 @@ namespace FinalProtingII.Controllers
         public IActionResult Delete(int id)
         {
             var jobdesk = JobdeskHelper.GetById(id);
+            
             return PartialView("_FormDelete", jobdesk);
         }
 
@@ -87,6 +92,7 @@ namespace FinalProtingII.Controllers
         {
             JobdeskAssignmentHelper.HapusAssignmentsByJobdesk(id);
             JobdeskHelper.HapusJobdesk(id);
+            
             return RedirectToAction("Index");
         }
 
@@ -131,6 +137,7 @@ namespace FinalProtingII.Controllers
         public IActionResult EditGet(int id)
         {
             var jobdesk = JobdeskHelper.GetById(id);
+            
             return PartialView("_FormEdit", jobdesk);
         }
 
@@ -160,8 +167,8 @@ namespace FinalProtingII.Controllers
             }
 
             JobdeskHelper.SimpanJobdesk(jobdesks);
+         
             return RedirectToAction("Index");
         }
-
     }
 }
