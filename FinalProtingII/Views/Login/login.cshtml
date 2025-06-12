@@ -95,15 +95,32 @@
         });
 
         function Validate() {
+            const username = $('#username').val().trim(); //  Trim input untuk menghindari input kosong yang menyamar
+            const password = $('#password').val().trim();
+
+            //  Cek input kosong sebelum request dikirim
+            if (!username || !password) {
+                $.bootstrapGrowl("Username dan Password harus diisi!", {
+                    type: 'danger',
+                    align: 'right',
+                    delay: 3000
+                });
+                return;
+            }
+
             $("#btn_login").prop("disabled", true).text("Signing in...");
             $.ajax({
                 type: "POST",
                 url: '@Url.Action("Validate", "Login")',
                 data: {
-                    USERNAME: $('#username').val(),
-                    PASSWORD: $('#password').val()
+                    USERNAME: username,
+                    PASSWORD: password
                 },
-                error: function (result) {
+                headers: {
+                    //  Kirim token CSRF ke server agar aman
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                error: function () {
                     $("#btn_login").prop("disabled", false).text("Sign In");
                     $.bootstrapGrowl("Server error", {
                         type: 'danger',
