@@ -40,17 +40,24 @@
                                 </div>
                             </div>
                         </div>
+                       @{
+                            var role = Context.Session.GetString("role");
+                        }
+
                         <div class="row">
-                            <div class="col-auto">
-                                <button class="btn btn-success mb-2 me-2 open-modal" data-url="@Url.Action("Create")" type="button">
-                                    + Tambah Jobdesk
-                                </button>
-                            </div>
-                            <div class="col-auto">
-                                <button class="btn btn-primary mb-2 open-modal" data-url="@Url.Action("Assign")" type="button">
-                                    + Tambah Jobdesk ke Karyawan
-                                </button>
-                            </div>
+                            @if (role == "admin")
+                            {
+                                <div class="col-auto">
+                                    <button class="btn btn-success mb-2 me-2 open-modal" data-url="@Url.Action("Create")" type="button">
+                                        + Tambah Jobdesk
+                                    </button>
+                                </div>
+                                <div class="col-auto">
+                                    <button class="btn btn-primary mb-2 open-modal" data-url="@Url.Action("Assign")" type="button">
+                                        + Tambah Jobdesk ke Karyawan
+                                    </button>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
