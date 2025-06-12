@@ -2,6 +2,14 @@
 
 namespace FinalProtingII.Models
 {
+    public enum PenggajianStatus
+    {
+        Draft,
+        Submitted,
+        Approved,
+        Paid
+    }
+
     public class Penggajian
     {
         public int Id { get; set; }
@@ -14,5 +22,7 @@ namespace FinalProtingII.Models
         public decimal GajiPokok { get; set; }
 
         public Karyawan Karyawan { get; set; }  // untuk relasi (optional kalau pakai JSON)
+
+        public PenggajianStatus Status { get; set; } = PenggajianStatus.Draft;
     }
 }
