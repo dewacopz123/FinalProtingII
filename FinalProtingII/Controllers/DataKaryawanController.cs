@@ -55,6 +55,7 @@ namespace FinalProtingII.Controllers
         {
             var result = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
             PopulateKaryawanNames();
+
             return View(result);
         }
 
@@ -76,6 +77,7 @@ namespace FinalProtingII.Controllers
         public IActionResult Edit(int id)
         {
             var karyawan = KaryawanHelper.GetById(id);
+
             return karyawan is null ? NotFound() : PartialView("_FormEdit", karyawan);
         }
 
@@ -113,6 +115,7 @@ namespace FinalProtingII.Controllers
         public IActionResult Delete(int id)
         {
             var karyawan = KaryawanHelper.GetById(id);
+
             return karyawan is null ? NotFound() : PartialView("_FormDelete", karyawan);
         }
 
@@ -136,6 +139,7 @@ namespace FinalProtingII.Controllers
         {
             var results = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
             PopulateKaryawanNames();
+
             return View("Index", results);
         }
     }
