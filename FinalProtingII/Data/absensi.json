@@ -10,5 +10,17 @@
     "NamaKaryawan": "admin",
     "Tanggal": "2025-06-11T16:08:46.9209808+07:00",
     "Status": "Selesai"
+  },
+  {
+    "Id": 3,
+    "NamaKaryawan": "khalish",
+    "Tanggal": "2025-06-12T14:11:00.4391737+07:00",
+    "Status": "Masuk"
+  },
+  {
+    "Id": 4,
+    "NamaKaryawan": "khalish",
+    "Tanggal": "2025-06-12T14:11:02.8181335+07:00",
+    "Status": "Selesai"
   }
 ]
