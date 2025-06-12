@@ -3,6 +3,7 @@ using FinalProtingII.Models;
 using FinalProtingII.Helpers;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace FinalProtingII.Controllers
 {
@@ -89,37 +90,44 @@ namespace FinalProtingII.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Edit(int id)
+        // GET: Penggajian/Edit/5
+        [HttpGet("Penggajian/Edit/{id}")]
+        [ActionName("Edit")]
+        public IActionResult EditGet(int id)
         {
-            var penggajian = PenggajianHelper.LoadPenggajian().FirstOrDefault(p => p.Id == id);
+            var penggajian = PenggajianHelper.GetById(id);
             if (penggajian == null)
                 return NotFound();
 
-            ViewBag.KaryawanList = KaryawanHelper.LoadKaryawan();
+            ViewBag.KaryawanList = new SelectList(KaryawanHelper.LoadKaryawan(), "Id", "Nama", penggajian.IdKaryawan);
             return PartialView("_FormEdit", penggajian);
         }
 
-        // Menyimpan perubahan data penggajian yang telah diedit
-        [HttpPost]
+        // POST: Penggajian/Edit/5
+        [HttpPost("Penggajian/Edit/{id}")]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Penggajian model)
+        public IActionResult Edit(int id, Penggajian model)
         {
-            var penggajianList = PenggajianHelper.LoadPenggajian();
-            var existing = penggajianList.FirstOrDefault(p => p.Id == model.Id);
+            if (!ModelState.IsValid)
+            {
+                ViewBag.KaryawanList = new SelectList(KaryawanHelper.LoadKaryawan(), "Id", "Nama", model.IdKaryawan);
+                return PartialView("_FormEdit", model);
+            }
 
+            var data = PenggajianHelper.LoadPenggajian();
+            var existing = data.FirstOrDefault(p => p.Id == id);
             if (existing == null)
                 return NotFound();
 
-            // Update data
+            // Update fields
             existing.IdKaryawan = model.IdKaryawan;
             existing.Tanggal = model.Tanggal;
             existing.GajiPokok = model.GajiPokok;
 
-            PenggajianHelper.SavePenggajian(penggajianList);
+            PenggajianHelper.SimpanJobdesk(data);
 
             return RedirectToAction("Index");
         }
-
 
         // Menampilkan form konfirmasi penghapusan penggajian
         public IActionResult Delete(int id)
