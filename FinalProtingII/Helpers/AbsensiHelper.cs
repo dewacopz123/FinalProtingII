@@ -10,7 +10,6 @@ namespace FinalProtingII.Helpers
     {
         private const string FilePath = "Data/absensi.json";
 
-        // Simpan list absensi ke file JSON
         public static void SaveAbsensi(List<Absensi> daftarAbsensi)
         {
             try
@@ -28,7 +27,6 @@ namespace FinalProtingII.Helpers
             }
         }
 
-        // Muat data absensi dari file JSON
         public static List<Absensi> LoadAbsensi()
         {
             try
