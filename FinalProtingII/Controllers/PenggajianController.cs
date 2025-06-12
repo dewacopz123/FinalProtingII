@@ -39,6 +39,18 @@ namespace FinalProtingII.Controllers
             return View(penggajianList);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AdvanceStatus(int id)
+        {
+            var list = PenggajianHelper.LoadPenggajian();
+            var penggajian = list.FirstOrDefault(p => p.Id == id);
+            if (penggajian == null) return NotFound();
+
+            PenggajianHelper.SavePenggajian(list);
+            return RedirectToAction("Index");
+        }
+
 
         public IActionResult Create()
         {
