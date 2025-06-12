@@ -57,5 +57,17 @@ namespace FinalProtingII.Helpers
                 SavePenggajian(list);
             }
         }
+
+        public static Penggajian? GetById(int id)
+        {
+            var daftarPenggajian = LoadPenggajian();
+            return daftarPenggajian.FirstOrDefault(p => p.Id == id);
+        }
+
+        public static void SimpanJobdesk(List<Penggajian> daftarPenggajian)
+        {
+            var json = JsonSerializer.Serialize(daftarPenggajian, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(filePath, json);
+        }
     }
 }

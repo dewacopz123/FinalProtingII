@@ -3,21 +3,23 @@ using FinalProtingII.Models;
 using FinalProtingII.Helpers;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace FinalProtingII.Controllers
 {
     public class PenggajianController : Controller
     {
+        // Menampilkan daftar penggajian, dengan opsi pencarian berdasarkan nama karyawan
         public IActionResult Index(string karyawanName)
         {
             var penggajianList = PenggajianHelper.LoadPenggajian();
             var karyawanList = KaryawanHelper.LoadKaryawan();
 
-            // Buat dictionary untuk ambil nama karyawan berdasarkan IdKaryawan
+            // Membuat dictionary untuk mengambil nama karyawan berdasarkan Id
             var karyawanDict = karyawanList.ToDictionary(k => k.Id, k => k.Nama);
             ViewBag.KaryawanDict = karyawanDict;
 
-            // Filter penggajianList jika karyawanName diisi
+            // Filter penggajian jika nama karyawan dicari
             if (!string.IsNullOrEmpty(karyawanName))
             {
                 var matchingIds = karyawanList
@@ -30,6 +32,7 @@ namespace FinalProtingII.Controllers
                     .ToList();
             }
 
+            // Mengirim daftar nama karyawan unik untuk kebutuhan dropdown/filter di view
             ViewBag.KaryawanNames = karyawanList
                 .Select(k => k.Nama)
                 .Where(n => !string.IsNullOrEmpty(n))
@@ -39,6 +42,7 @@ namespace FinalProtingII.Controllers
             return View(penggajianList);
         }
 
+        // Mengembalikan status penggajian selanjutnya berdasarkan status saat ini
         public PenggajianStatus GetNextStatus(PenggajianStatus current)
         {
             return current switch
@@ -50,6 +54,7 @@ namespace FinalProtingII.Controllers
             };
         }
 
+        // Proses untuk memperbarui status penggajian ke status berikutnya
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult AdvanceStatus(int id)
@@ -60,80 +65,102 @@ namespace FinalProtingII.Controllers
 
             penggajian.Status = GetNextStatus(penggajian.Status);
             PenggajianHelper.SavePenggajian(list);
+
             return RedirectToAction("Index");
         }
 
-
+        // Menampilkan form create sebagai partial view
         public IActionResult Create()
         {
             ViewBag.KaryawanList = KaryawanHelper.LoadKaryawan();
             return PartialView("_FormCreate");
         }
 
+        // Menangani proses pembuatan data penggajian baru
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Penggajian penggajian)
         {
             var list = PenggajianHelper.LoadPenggajian();
             penggajian.Id = list.Any() ? list.Max(p => p.Id) + 1 : 1;
+
             list.Add(penggajian);
             PenggajianHelper.SavePenggajian(list);
+
             return RedirectToAction("Index");
         }
 
-        public IActionResult Edit(int id)
+        // GET: Penggajian/Edit/5
+        [HttpGet("Penggajian/Edit/{id}")]
+        [ActionName("Edit")]
+        public IActionResult EditGet(int id)
         {
-            var penggajian = PenggajianHelper.LoadPenggajian().FirstOrDefault(p => p.Id == id);
-            if (penggajian == null) return NotFound();
+            var penggajian = PenggajianHelper.GetById(id);
+            if (penggajian == null)
+                return NotFound();
 
-            ViewBag.KaryawanList = KaryawanHelper.LoadKaryawan();
+            ViewBag.KaryawanList = new SelectList(KaryawanHelper.LoadKaryawan(), "Id", "Nama", penggajian.IdKaryawan);
             return PartialView("_FormEdit", penggajian);
         }
 
-        [HttpPost]
+        // POST: Penggajian/Edit/5
+        [HttpPost("Penggajian/Edit/{id}")]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(Penggajian updated)
+        public IActionResult Edit(int id, Penggajian model)
         {
-            var list = PenggajianHelper.LoadPenggajian();
-            var existing = list.FirstOrDefault(p => p.Id == updated.Id);
-            if (existing == null) return NotFound();
+            if (!ModelState.IsValid)
+            {
+                ViewBag.KaryawanList = new SelectList(KaryawanHelper.LoadKaryawan(), "Id", "Nama", model.IdKaryawan);
+                return PartialView("_FormEdit", model);
+            }
 
-            existing.IdKaryawan = updated.IdKaryawan;
-            existing.Tanggal = updated.Tanggal;
-            existing.GajiPokok = updated.GajiPokok;
+            var data = PenggajianHelper.LoadPenggajian();
+            var existing = data.FirstOrDefault(p => p.Id == id);
+            if (existing == null)
+                return NotFound();
 
-            PenggajianHelper.SavePenggajian(list);
+            // Update fields
+            existing.IdKaryawan = model.IdKaryawan;
+            existing.Tanggal = model.Tanggal;
+            existing.GajiPokok = model.GajiPokok;
+
+            PenggajianHelper.SimpanJobdesk(data);
+
             return RedirectToAction("Index");
         }
 
+        // Menampilkan form konfirmasi penghapusan penggajian
         public IActionResult Delete(int id)
         {
             var penggajian = PenggajianHelper.LoadPenggajian().FirstOrDefault(p => p.Id == id);
             var karyawan = KaryawanHelper.LoadKaryawan().FirstOrDefault(k => k.Id == penggajian?.IdKaryawan);
+
             ViewBag.NamaKaryawan = karyawan?.Nama ?? "Tidak Diketahui";
             return PartialView("_FormDelete", penggajian);
         }
 
+        // Menangani konfirmasi dan proses penghapusan data penggajian
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
             var list = PenggajianHelper.LoadPenggajian();
             var item = list.FirstOrDefault(p => p.Id == id);
+
             if (item != null)
             {
                 list.Remove(item);
                 PenggajianHelper.SavePenggajian(list);
             }
+
             return RedirectToAction("Index");
         }
 
-        // Hapus method Search atau redirect ke Index
+        // Mengalihkan pencarian ke halaman index agar tidak duplikatif
         [HttpGet]
         public IActionResult Search(string karyawanName)
         {
             return RedirectToAction("Index", new { karyawanName });
         }
-
     }
 }
