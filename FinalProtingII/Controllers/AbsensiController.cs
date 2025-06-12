@@ -31,6 +31,7 @@ public class AbsensiController : Controller
         }
 
         return View(absensiUser);
+
     }
 
     // FUNGSI GENERIC
@@ -49,6 +50,7 @@ public class AbsensiController : Controller
         if (typeof(T) == typeof(Absensi))
         {
             AbsensiHelper.SaveAbsensi(list as List<Absensi>);
+
             return;
         }
 
@@ -89,6 +91,7 @@ public class AbsensiController : Controller
         if (SudahAbsensiHariIni(nama, today, "Masuk"))
         {
             TempData["Error"] = "Anda sudah melakukan Masuk Kerja hari ini.";
+
             return RedirectToAction("Index");
         }
 
@@ -106,12 +109,14 @@ public class AbsensiController : Controller
         if (!SudahAbsensiHariIni(nama, today, "Masuk"))
         {
             TempData["Error"] = "Anda belum melakukan Masuk Kerja hari ini.";
+
             return RedirectToAction("Index");
         }
 
         if (SudahAbsensiHariIni(nama, today, "Selesai"))
         {
             TempData["Error"] = "Anda sudah melakukan Selesai Kerja hari ini.";
+
             return RedirectToAction("Index");
         }
 
