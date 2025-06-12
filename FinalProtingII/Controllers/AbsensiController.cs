@@ -10,25 +10,35 @@ public class AbsensiController : Controller
     public IActionResult Index()
     {
         var nama = HttpContext.Session.GetString("Username") ?? "Unknown";
+        var role = HttpContext.Session.GetString("role") ?? "Unknown";
 
         var absensiList = LoadAbsensi();
 
-        var absensiUser = absensiList
-            .Where(a => a.NamaKaryawan == nama)
-            .OrderByDescending(a => a.Tanggal)
-            .ToList();
+        List<Absensi> absensiUser;
+
+        if (role == "admin")
+        {
+            // Admin melihat semua absensi
+            absensiUser = absensiList.OrderByDescending(a => a.Tanggal).ToList();
+        }
+        else
+        {
+            // Karyawan hanya melihat absensi mereka sendiri
+            absensiUser = absensiList
+                .Where(a => a.NamaKaryawan == nama)
+                .OrderByDescending(a => a.Tanggal)
+                .ToList();
+        }
 
         return View(absensiUser);
     }
 
-    // Load absensi dari file setiap akses (atau bisa dioptimalkan pakai cache jika perlu)
+
     private List<Absensi> LoadAbsensi()
     {
-        // AbsensiHelper perlu diupdate untuk support Absensi (bukan Karyawan)
         return AbsensiHelper.LoadAbsensi();
     }
 
-    // Simpan absensi ke file
     private void SaveAbsensi(List<Absensi> list)
     {
         AbsensiHelper.SaveAbsensi(list);
@@ -71,9 +81,12 @@ public class AbsensiController : Controller
             return RedirectToAction("Index");
         }
 
+        // Catat absensi dengan nama user yang login
         TambahAbsensi(nama, "Masuk");
+
         return RedirectToAction("Index");
     }
+
 
     [HttpPost]
     public IActionResult SelesaiKerja()
@@ -93,9 +106,13 @@ public class AbsensiController : Controller
             return RedirectToAction("Index");
         }
 
+        // Catat absensi dengan nama user yang login
         TambahAbsensi(nama, "Selesai");
+
         return RedirectToAction("Index");
     }
+
+
 
     [HttpGet]
     public IActionResult Search(string karyawanName)
