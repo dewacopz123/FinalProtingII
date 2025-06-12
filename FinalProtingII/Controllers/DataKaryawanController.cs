@@ -9,39 +9,56 @@ namespace FinalProtingII.Controllers
 {
     public class DataKaryawanController : Controller
     {
-        // Generic helper method
+        // Table-driven dictionaries for Load and Save methods
+        private static readonly Dictionary<Type, Func<object>> LoadTable = new()
+        {
+            { typeof(Karyawan), () => KaryawanHelper.LoadKaryawan() }
+        };
+
+        private static readonly Dictionary<Type, Action<object>> SaveTable = new()
+        {
+            { typeof(Karyawan), data => KaryawanHelper.SimpanKaryawan((List<Karyawan>)data) }
+        };
+
+        // Generic Load method using table-driven approach
         private List<T> LoadData<T>()
         {
-            if (typeof(T) == typeof(Karyawan))
-                return KaryawanHelper.LoadKaryawan() as List<T>;
-
+            if (LoadTable.TryGetValue(typeof(T), out var loader))
+            {
+                return loader() as List<T>;
+            }
             throw new NotSupportedException($"Tipe {typeof(T).Name} tidak didukung.");
         }
 
+        // Generic Save method using table-driven approach
         private void SaveData<T>(List<T> data)
         {
-            if (typeof(T) == typeof(Karyawan))
-                KaryawanHelper.SimpanKaryawan(data as List<Karyawan>);
+            if (SaveTable.TryGetValue(typeof(T), out var saver))
+            {
+                saver(data);
+            }
             else
+            {
                 throw new NotSupportedException($"Tipe {typeof(T).Name} tidak didukung.");
+            }
         }
 
-        public IActionResult Index(string karyawanName)
+        private void PopulateKaryawanNames()
         {
-            var allData = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
-
             ViewBag.KaryawanNames = LoadData<Karyawan>()
                 .Select(k => k.Nama)
                 .Distinct()
                 .ToList();
-
-            return View(allData);
         }
 
-        public IActionResult Create()
+        public IActionResult Index(string karyawanName)
         {
-            return PartialView("_FormCreate");
+            var result = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
+            PopulateKaryawanNames();
+            return View(result);
         }
+
+        public IActionResult Create() => PartialView("_FormCreate");
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -49,18 +66,17 @@ namespace FinalProtingII.Controllers
         {
             var list = LoadData<Karyawan>();
             karyawan.Id = list.Any() ? list.Max(k => k.Id) + 1 : 1;
+
             list.Add(karyawan);
             SaveData(list);
-            return RedirectToAction("Index");
+
+            return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Edit(int id)
         {
             var karyawan = KaryawanHelper.GetById(id);
-            if (karyawan == null)
-                return NotFound();
-
-            return PartialView("_FormEdit", karyawan);
+            return karyawan is null ? NotFound() : PartialView("_FormEdit", karyawan);
         }
 
         [HttpPost]
@@ -69,34 +85,35 @@ namespace FinalProtingII.Controllers
         {
             var list = LoadData<Karyawan>();
             var existing = list.FirstOrDefault(k => k.Id == updated.Id);
-            if (existing == null)
-                return NotFound();
+            if (existing == null) return NotFound();
 
-            var updateActions = new Dictionary<string, Action>
-            {
-                { "Nama", () => existing.Nama = updated.Nama },
-                { "Email", () => existing.Email = updated.Email },
-                { "Telepon", () => existing.Telepon = updated.Telepon },
-                { "Role", () => existing.Role = updated.Role },
-                { "Status", () => existing.Status = updated.Status }
-            };
-
-            foreach (var action in updateActions.Values)
-            {
-                action.Invoke();
-            }
-
+            UpdateKaryawan(existing, updated);
             SaveData(list);
-            return RedirectToAction("Index");
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        private static readonly Dictionary<string, Action<Karyawan, Karyawan>> UpdateFieldMap = new()
+        {
+            { "Nama", (existing, updated) => existing.Nama = updated.Nama },
+            { "Email", (existing, updated) => existing.Email = updated.Email },
+            { "Telepon", (existing, updated) => existing.Telepon = updated.Telepon },
+            { "Role", (existing, updated) => existing.Role = updated.Role },
+            { "Status", (existing, updated) => existing.Status = updated.Status }
+        };
+
+        private void UpdateKaryawan(Karyawan existing, Karyawan updated)
+        {
+            foreach (var updateField in UpdateFieldMap.Values)
+            {
+                updateField(existing, updated);
+            }
         }
 
         public IActionResult Delete(int id)
         {
             var karyawan = KaryawanHelper.GetById(id);
-            if (karyawan == null)
-                return NotFound();
-
-            return PartialView("_FormDelete", karyawan);
+            return karyawan is null ? NotFound() : PartialView("_FormDelete", karyawan);
         }
 
         [HttpPost]
@@ -110,20 +127,16 @@ namespace FinalProtingII.Controllers
                 list.Remove(item);
                 SaveData(list);
             }
-            return RedirectToAction("Index");
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpGet]
         public IActionResult Search(string karyawanName)
         {
-            var karyawanList = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
-
-            ViewBag.KaryawanNames = LoadData<Karyawan>()
-                .Select(k => k.Nama)
-                .Distinct()
-                .ToList();
-
-            return View("Index", karyawanList);
+            var results = KaryawanJobdeskService.SearchKaryawan(nama: karyawanName);
+            PopulateKaryawanNames();
+            return View("Index", results);
         }
     }
 }
