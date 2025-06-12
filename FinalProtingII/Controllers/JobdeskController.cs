@@ -6,7 +6,7 @@ namespace FinalProtingII.Controllers
 {
     public class JobdeskController : Controller
     {
-        // Tampilkan seluruh jobdesk beserta relasi ke karyawan
+        // Menampilkan daftar semua jobdesk
         public IActionResult Index()
         {
             var jobdesks = JobdeskHelper.LoadJobdesk();
@@ -17,51 +17,81 @@ namespace FinalProtingII.Controllers
                 jobdesks.Select(j => j.IdJobdesk).ToList());
 
             ViewBag.JobdeskToKaryawans = jobdeskToKaryawans;
-            ViewBag.JobdeskNames = jobdesks.Select(j => j.NamaJobdesk).WhereNotNullOrEmpty().Distinct().ToList();
-            ViewBag.KaryawanNames = allKaryawans.Select(k => k.Nama).WhereNotNullOrEmpty().Distinct().ToList();
+            ViewBag.JobdeskNames = jobdesks
+                .Select(j => j.NamaJobdesk)
+                .Where(n => !string.IsNullOrEmpty(n))
+                .Distinct()
+                .ToList();
+
+            ViewBag.KaryawanNames = allKaryawans
+                .Select(k => k.Nama)
+                .Where(n => !string.IsNullOrEmpty(n))
+                .Distinct()
+                .ToList();
 
             return View(jobdesks);
         }
 
+        // Menampilkan form create (partial view)
         public IActionResult Create() => PartialView("_FormCreate", new Jobdesk());
 
+        // Menangani form submit untuk menambah jobdesk baru
         [HttpPost]
-        public IActionResult Create(Jobdesk model, string tugasUtama)
+        public IActionResult Create(Jobdesk model, string TugasUtamaString)
         {
             var jobdesks = JobdeskHelper.LoadJobdesk();
-            model.IdJobdesk = jobdesks.Any() ? jobdesks.Max(j => j.IdJobdesk) + 1 : 1;
 
-            model.TugasUtama = ParseTugasUtama(tugasUtama);
+            // Mengatur ID otomatis
+            model.IdJobdesk = jobdesks.Count > 0
+                ? jobdesks.Max(j => j.IdJobdesk) + 1
+                : 1;
+
+            // Memproses string tugas utama menjadi list
+            if (!string.IsNullOrWhiteSpace(TugasUtamaString))
+            {
+                model.TugasUtama = TugasUtamaString
+                    .Split(',')
+                    .Select(t => t.Trim())
+                    .Where(t => !string.IsNullOrEmpty(t))
+                    .ToList();
+            }
 
             JobdeskHelper.TambahJobdesk(model);
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
+        // Menampilkan form assign (partial view)
         public IActionResult Assign()
         {
             ViewBag.Karyawans = KaryawanHelper.LoadKaryawan();
             ViewBag.Jobdesks = JobdeskHelper.LoadJobdesk();
-
             return PartialView("_FormAssign");
         }
 
+        // Menangani submit assign jobdesk ke karyawan
         [HttpPost]
         public IActionResult Assign(int jobdeskId, int karyawanId)
         {
             if (jobdeskId == 0 || karyawanId == 0)
             {
                 TempData["Error"] = "Silakan pilih Jobdesk dan Karyawan.";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index");
             }
 
-            var assignment = new JobdeskAssignment { JobdeskId = jobdeskId, KaryawanId = karyawanId };
-            JobdeskAssignmentHelper.TambahAssignment(assignment);
+            var assignment = new JobdeskAssignment
+            {
+                JobdeskId = jobdeskId,
+                KaryawanId = karyawanId
+            };
 
+            JobdeskAssignmentHelper.TambahAssignment(assignment);
             TempData["Success"] = "Jobdesk berhasil diberikan ke karyawan.";
-            return RedirectToAction(nameof(Index));
+
+            return RedirectToAction("Index");
         }
 
+        // Menangani reassignment jobdesk ke karyawan baru
         [HttpPost]
         public IActionResult Reassign(int jobdeskId, int karyawanId)
         {
@@ -73,24 +103,27 @@ namespace FinalProtingII.Controllers
                 KaryawanId = karyawanId
             });
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
+        // Menampilkan konfirmasi penghapusan jobdesk
         public IActionResult Delete(int id)
         {
             var jobdesk = JobdeskHelper.GetById(id);
             return PartialView("_FormDelete", jobdesk);
         }
 
+        // Menangani penghapusan jobdesk dan assignment-nya
         [HttpPost]
         public IActionResult DeleteConfirmed(int id)
         {
             JobdeskAssignmentHelper.HapusAssignmentsByJobdesk(id);
             JobdeskHelper.HapusJobdesk(id);
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index");
         }
 
+        // Menampilkan hasil pencarian berdasarkan nama jobdesk dan/atau nama karyawan
         public IActionResult Search(string jobdeskName, string karyawanName)
         {
             var filteredJobdesks = KaryawanJobdeskService.SearchJobdesk(nama: jobdeskName);
@@ -102,6 +135,7 @@ namespace FinalProtingII.Controllers
                 var karyawanIds = filteredKaryawans.Select(k => k.Id).ToList();
 
                 var assignments = JobdeskAssignmentHelper.LoadAssignments();
+
                 var jobdeskIdsByKaryawan = assignments
                     .Where(a => karyawanIds.Contains(a.KaryawanId))
                     .Select(a => a.JobdeskId)
@@ -109,16 +143,34 @@ namespace FinalProtingII.Controllers
                     .ToList();
 
                 jobdeskIds = jobdeskIds.Intersect(jobdeskIdsByKaryawan).ToList();
-                filteredJobdesks = filteredJobdesks.Where(j => jobdeskIds.Contains(j.IdJobdesk)).ToList();
+
+                filteredJobdesks = filteredJobdesks
+                    .Where(j => jobdeskIds.Contains(j.IdJobdesk))
+                    .ToList();
             }
 
-            ViewBag.JobdeskToKaryawans = KaryawanJobdeskService.GetKaryawansForJobdesks(jobdeskIds);
-            ViewBag.JobdeskNames = JobdeskHelper.LoadJobdesk().Select(j => j.NamaJobdesk).WhereNotNullOrEmpty().Distinct().ToList();
-            ViewBag.KaryawanNames = KaryawanHelper.LoadKaryawan().Select(k => k.Nama).WhereNotNullOrEmpty().Distinct().ToList();
+            var jobdeskToKaryawans = KaryawanJobdeskService.GetKaryawansForJobdesks(jobdeskIds);
+            var allKaryawans = KaryawanHelper.LoadKaryawan();
+            var allJobdesks = JobdeskHelper.LoadJobdesk();
+
+            ViewBag.JobdeskNames = allJobdesks
+                .Select(j => j.NamaJobdesk)
+                .Where(n => !string.IsNullOrEmpty(n))
+                .Distinct()
+                .ToList();
+
+            ViewBag.KaryawanNames = allKaryawans
+                .Select(k => k.Nama)
+                .Where(n => !string.IsNullOrEmpty(n))
+                .Distinct()
+                .ToList();
+
+            ViewBag.JobdeskToKaryawans = jobdeskToKaryawans;
 
             return View("Index", filteredJobdesks);
         }
 
+        // Menampilkan form edit (GET)
         [HttpGet("Jobdesk/Edit/{id}")]
         [ActionName("Edit")]
         public IActionResult EditGet(int id)
@@ -127,39 +179,35 @@ namespace FinalProtingII.Controllers
             return PartialView("_FormEdit", jobdesk);
         }
 
+        // Menyimpan perubahan data jobdesk (POST)
         [HttpPost("Jobdesk/Edit/{id}")]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Jobdesk model, string tugasUtama)
+        public IActionResult Edit(int id, Jobdesk model, string TugasUtamaString)
         {
             var jobdesks = JobdeskHelper.LoadJobdesk();
             var existingJobdesk = jobdesks.FirstOrDefault(j => j.IdJobdesk == id);
 
             if (existingJobdesk == null)
+            {
                 return NotFound();
+            }
 
+            // Update nama jobdesk
             existingJobdesk.NamaJobdesk = model.NamaJobdesk;
-            existingJobdesk.TugasUtama = ParseTugasUtama(tugasUtama);
+
+            // Update tugas utama jika diberikan
+            if (!string.IsNullOrWhiteSpace(TugasUtamaString))
+            {
+                existingJobdesk.TugasUtama = TugasUtamaString
+                    .Split(',')
+                    .Select(t => t.Trim())
+                    .Where(t => !string.IsNullOrEmpty(t))
+                    .ToList();
+            }
 
             JobdeskHelper.SimpanJobdesk(jobdesks);
 
-            return RedirectToAction(nameof(Index));
-        }
-
-        // Helper Method: Parsers
-        private static List<string> ParseTugasUtama(string input)
-        {
-            return string.IsNullOrWhiteSpace(input)
-                ? new List<string>()
-                : input.Split(',').Select(t => t.Trim()).WhereNotNullOrEmpty().ToList();
-        }
-    }
-
-    // Extension Method untuk kebersihan
-    public static class EnumerableExtensions
-    {
-        public static IEnumerable<string> WhereNotNullOrEmpty(this IEnumerable<string> source)
-        {
-            return source.Where(s => !string.IsNullOrWhiteSpace(s));
+            return RedirectToAction("Index");
         }
     }
 }
